@@ -52,10 +52,10 @@ func DebugPrintBoard():
 
 func _ready():
 	_board.resize(64);
-	clear();
+	ClearBoard();
 	DebugPrintBoard();
 
-func clear():
+func ClearBoard():
 	var layout = [Piece.Type.ROOK, Piece.Type.KNIGHT, Piece.Type.BISHOP, Piece.Type.QUEEN, Piece.Type.KING, Piece.Type.BISHOP, Piece.Type.KNIGHT, Piece.Type.ROOK];
 	for i in range(8):
 		SetPiece(Vector2(i, 1), Piece.new_piece(Piece.Type.PAWN, Piece.Side.WHITE));
