@@ -44,6 +44,9 @@ func MovePiece(pos : Vector2, newPos : Vector2):
 	_board[newPos.x + newPos.y * 8] = _board[pos.x + pos.y * 8];
 	SetPiece(pos);
 
+func GetPiece(pos : Vector2) -> Chessboard.Piece:
+	return _board[pos.x + pos.y * 8];
+
 func DebugPrintBoard():
 	# Invert the chessboard since white shows up first:
 	for col in range(7, -1, -1):
