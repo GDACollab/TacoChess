@@ -1,0 +1,24 @@
+[gd_scene load_steps=2 format=3 uid="uid://dp2wotm1s1f0c"]
+
+[ext_resource type="Texture2D" uid="uid://ckbkkv1x3xywj" path="res://titleBackdrop.png" id="1_8m242"]
+
+[node name="menu" type="Node2D"]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(451, 315)
+scale = Vector2(2.5, 2.5)
+texture = ExtResource("1_8m242")
+
+[node name="StartGameButton" type="Button" parent="."]
+offset_left = 960.0
+offset_top = 97.0
+offset_right = 1066.0
+offset_bottom = 128.0
+text = "START GAME"
+
+[node name="EndGameButton" type="Button" parent="."]
+offset_left = 960.0
+offset_top = 155.0
+offset_right = 1066.0
+offset_bottom = 186.0
+text = "END GAME"
