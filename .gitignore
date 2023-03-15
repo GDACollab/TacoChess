@@ -3,4 +3,3 @@
 
 # Godot Unit Testing (install from AssetLib instead)
 addons/gut/*
-.gut_editor_config.json

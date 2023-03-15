@@ -11,7 +11,7 @@ class GameState:
 
 # Given by get_possible_moves:
 class Move:
-	enum Type {MOVE, CAPTURE, CASTLE}
+	enum Type {MOVE, CAPTURE, CASTLE, PROMOTION}
 	var type : Chessboard.Move.Type;
 	var position : Vector2;
 	func _init(_type: Chessboard.Move.Type, _position: Vector2):
