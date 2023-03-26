@@ -34,8 +34,8 @@ class TestPawn:
 		return Chessboard.Move.new(Chessboard.Move.Type.MOVE, Vector2(pawn.position.x, pawn.position.y + by));
 	
 	func test_is_pawn():
-		assert_typeof(_whitePawn, typeof(Logic.Pawn));
-		assert_typeof(_blackPawn, typeof(Logic.Pawn));
+		assert_true(_whitePawn is Logic.Pawn);
+		assert_true(_blackPawn is Logic.Pawn);
 		assert_eq(_whitePawn.side, Chessboard.Piece.Side.WHITE);
 		assert_eq(_blackPawn.side, Chessboard.Piece.Side.BLACK);
 	
@@ -58,17 +58,25 @@ class TestPawn:
 	
 	func test_can_promote():
 		Chessboard.SetPiece(Vector2(0, 6));
+		Chessboard.SetPiece(Vector2(0, 7));
 		while (_whitePawn.position.y < 6):
 			_whitePawn.get_possible_moves()[0].execute.call();
-			# Should be promotion
-		assert_true(PieceLogicTest.assert_move_arr_eq(_whitePawn.get_possible_moves(), [Chessboard.Move.new(Chessboard.Move.Type.PROMOTION, Vector2(0, 7))]), "White Pawn Move Promote");
+		# Should be promotion
+		assert_true(PieceLogicTest.assert_move_arr_eq(_whitePawn.get_possible_moves(), [Chessboard.Move.new(Chessboard.Move.Type.PROMOTION, Vector2(0, 7)), Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(1, 7))]), "White Pawn Move Promote");
 	
 	# Google "Google En Passant"
 	func test_can_en_passant():
-		while (_whitePawn.position.y < 6):
+		while (_whitePawn.position.y < 4):
 			_whitePawn.get_possible_moves()[0].execute.call();
 		_blackPawn.get_possible_moves()[1].execute.call();
-		assert_true(PieceLogicTest.assert_move_arr_eq(_whitePawn.get_possible_moves(), [Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(1, 6))]), "White Pawn Can En Passant");
+		assert_true(PieceLogicTest.assert_move_arr_eq(_whitePawn.get_possible_moves(), [get_move_forward(_whitePawn), Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(1, 5))]), "White Pawn Can En Passant");
+	
+	func test_cant_en_passant_after():
+		while (_whitePawn.position.y < 4):
+			_whitePawn.get_possible_moves()[0].execute.call();
+		_blackPawn.get_possible_moves()[1].execute.call();
+		Chessboard.GetPiece(Vector2(2, 6)).get_possible_moves()[0].execute.call();
+		assert_true(PieceLogicTest.assert_move_arr_eq(_whitePawn.get_possible_moves(), [get_move_forward(_whitePawn)]), "White Pawn Can Only Move Up After En Passant Opportunity");
 	
 	func test_can_capture():
 		_whitePawn.get_possible_moves()[1].execute.call();

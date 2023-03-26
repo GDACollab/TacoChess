@@ -39,17 +39,21 @@ class Piece:
 	func basic_move(pos: Vector2) -> Chessboard.GameState:
 		Chessboard.MovePiece(self.position, pos);
 		self.position = pos;
-		return Chessboard.logic.update_game_board();
+		return Chessboard.logic.update_game_board(self);
 	
 	func check_capture(pos : Vector2) -> bool:
-		var piece = Chessboard.GetPiece(pos);
-		return piece != null && piece.side != self.side;
+		if pos.x >= 0 && pos.x <= 7 && pos.y >= 0 && pos.y <= 7:
+			var piece = Chessboard.GetPiece(pos);
+			return piece != null && piece.side != self.side;
+		else:
+			return false;
 
 var _board : Array[Chessboard.Piece] = [];
 
 # Also works for clearing a piece, since it just sets it to null.
 func SetPiece(pos : Vector2, piece : Piece = null):
-	_board[pos.x + pos.y * 8] = piece;
+	if (pos.x >= 0 && pos.x <= 7 && pos.y >= 0 && pos.y <= 7):
+		_board[pos.x + pos.y * 8] = piece;
 
 # This is required because en passant needs piece history:
 func MovePiece(pos : Vector2, newPos : Vector2):
@@ -57,7 +61,10 @@ func MovePiece(pos : Vector2, newPos : Vector2):
 	SetPiece(pos);
 
 func GetPiece(pos : Vector2) -> Chessboard.Piece:
-	return _board[pos.x + pos.y * 8];
+	if (pos.x >= 0 && pos.x <= 7 && pos.y >= 0 && pos.y <= 7):
+		return _board[pos.x + pos.y * 8];
+	else:
+		return null;
 
 func DebugPrintBoard():
 	# Invert the chessboard since white shows up first:
@@ -77,11 +84,11 @@ func DebugPrintBoard():
 					row_str += "░░░";
 			row_str += "|";
 		print(row_str);
+	print("");
 
 func _ready():
 	_board.resize(64);
 	ClearBoard();
-	DebugPrintBoard();
 
 func ClearBoard():
 	_board.fill(null);
