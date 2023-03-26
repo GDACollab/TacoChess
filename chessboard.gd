@@ -1,5 +1,8 @@
 extends Node
 
+# Because class_name doesn't work for singletons:
+var logic = preload("res://chesslogic.gd");
+
 class GameState:
 	# Play means continue as normal, Draw means both sides have lost, Check means a side is in danger of losing, Checkmate means a side has lost.
 	enum Type {PLAY, DRAW, CHECK, CHECKMATE};
@@ -18,21 +21,24 @@ class Move:
 		type = _type;
 		position = _position;
 	# Perform the actual move and update Chessboard. Will also return GameState to tell you important information about the game (has a side won? Lost? Is there a draw?)
-	func execute() -> Chessboard.GameState:
-		return GameState.new();
+	var execute: Callable; # Should return Chessboard.GameState
 
 class Piece:
 	enum Side {WHITE, BLACK}
 	enum Type {PAWN, ROOK, KNIGHT, BISHOP, QUEEN, KING}
 	var type : Chessboard.Piece.Type;
 	var side : Chessboard.Piece.Side;
-	var position : Vector2;
+	var position : Vector2 ;
 	func _init(_type : Chessboard.Piece.Type = Type.PAWN, _side: Chessboard.Piece.Side = Side.WHITE, _pos: Vector2 = Vector2.ZERO):
 		type = _type;
 		side = _side;
 		position = _pos;
 	func get_possible_moves() -> Array[Chessboard.Move]:
 		return [];
+	
+	func basic_move(pos: Vector2) -> Chessboard.GameState:
+		self.position = pos;
+		return Chessboard.logic.update_game_board();
 
 var _board : Array[Chessboard.Piece] = [];
 
@@ -74,9 +80,10 @@ func _ready():
 
 func ClearBoard():
 	var layout = [Piece.Type.ROOK, Piece.Type.KNIGHT, Piece.Type.BISHOP, Piece.Type.QUEEN, Piece.Type.KING, Piece.Type.BISHOP, Piece.Type.KNIGHT, Piece.Type.ROOK];
+	Move.new(Move.Type.PROMOTION, Vector2(0, 0));
 	for i in range(8):
-		SetPiece(Vector2(i, 1), Piece.new(Piece.Type.PAWN, Piece.Side.WHITE, Vector2(i, 1)));
-		SetPiece(Vector2(i, 6), Piece.new(Piece.Type.PAWN, Piece.Side.BLACK, Vector2(i, 6)));
+		SetPiece(Vector2(i, 1), logic.Pawn.new(Piece.Side.WHITE, Vector2(i, 1)));
+		SetPiece(Vector2(i, 6), logic.Pawn.new(Piece.Side.BLACK, Vector2(i, 6)));
 		
 		SetPiece(Vector2(i, 0), Piece.new(layout[i], Piece.Side.WHITE, Vector2(i, 0)));
 		SetPiece(Vector2(i, 7), Piece.new(layout[i], Piece.Side.BLACK, Vector2(i, 7)));
