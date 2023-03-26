@@ -89,3 +89,18 @@ class TestPawn:
 		_whitePawn.get_possible_moves()[1].execute.call();
 		Chessboard.GetPiece(Vector2(0, 6)).get_possible_moves()[1].execute.call();
 		assert_eq(_whitePawn.get_possible_moves(), []);
+
+class TestRook:
+	extends GutTest
+	
+	var _whiteRook = null;
+	func before_each():
+		Chessboard.ClearBoard();
+		_whiteRook = Chessboard.GetPiece(Vector2(0, 0));
+		Chessboard.SetPiece(Vector2(1, 0));
+	
+	func test_is_rook():
+		assert_true(_whiteRook is Logic.Rook);
+	
+	func test_rook_trapped():
+		pass

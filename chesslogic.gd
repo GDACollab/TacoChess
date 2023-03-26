@@ -5,8 +5,9 @@ static func update_game_board(moved_piece: Chessboard.Piece):
 	for i in range(8):
 		for j in range(8):
 			var piece = Chessboard.GetPiece(Vector2(i, j));
-			if piece != null && piece != moved_piece && piece.side == moved_piece.side && piece is Pawn && (piece.pawn_move_state == Pawn.MoveState.MOVED_TWO):
-				piece.pawn_move_state = Pawn.MoveState.PLAY;
+			if piece != null && piece != moved_piece && piece.side == moved_piece.side:
+				if piece is Pawn && (piece.pawn_move_state == Pawn.MoveState.MOVED_TWO):
+					piece.pawn_move_state = Pawn.MoveState.PLAY;
 	return Chessboard.GameState.new();
 
 class Pawn extends Chessboard.Piece:
@@ -61,3 +62,32 @@ class Pawn extends Chessboard.Piece:
 			cap.execute = self.pawn_move.bind(cap_pos);
 			move_list.append(cap);
 		return move_list;
+
+class Rook extends Chessboard.Piece:
+	enum CastleState {START, PLAY};
+	var castle_state;
+	func _init(side: Chessboard.Piece.Side, position: Vector2):
+		castle_state = CastleState.START;
+		super(Chessboard.Piece.Type.ROOK, side, position);
+	
+	func rook_raycast():
+		pass
+	func get_possible_moves() -> Array[Chessboard.Move]:
+		var moves : Array[Chessboard.Move] = [];
+		return moves;
+
+class Knight extends Chessboard.Piece:
+	func _init(side: Chessboard.Piece.Side, position: Vector2):
+		super(Chessboard.Piece.Type.KNIGHT, side, position);
+
+class Bishop extends Chessboard.Piece:
+	func _init(side: Chessboard.Piece.Side, position: Vector2):
+		super(Chessboard.Piece.Type.BISHOP, side, position);
+
+class King extends Chessboard.Piece:
+	func _init(side: Chessboard.Piece.Side, position: Vector2):
+		super(Chessboard.Piece.Type.KING, side, position);
+	
+class Queen extends Chessboard.Piece:
+	func _init(side: Chessboard.Piece.Side, position: Vector2):
+		super(Chessboard.Piece.Type.QUEEN, side, position);

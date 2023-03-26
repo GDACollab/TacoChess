@@ -93,11 +93,11 @@ func _ready():
 func ClearBoard():
 	_board.fill(null);
 	
-	var layout = [Piece.Type.ROOK, Piece.Type.KNIGHT, Piece.Type.BISHOP, Piece.Type.QUEEN, Piece.Type.KING, Piece.Type.BISHOP, Piece.Type.KNIGHT, Piece.Type.ROOK];
+	var layout = [logic.Rook, logic.Knight, logic.Bishop, logic.Queen, logic.King, logic.Bishop, logic.Knight, logic.Rook];
 	Move.new(Move.Type.PROMOTION, Vector2(0, 0));
 	for i in range(8):
 		SetPiece(Vector2(i, 1), logic.Pawn.new(Piece.Side.WHITE, Vector2(i, 1)));
 		SetPiece(Vector2(i, 6), logic.Pawn.new(Piece.Side.BLACK, Vector2(i, 6)));
 		
-		SetPiece(Vector2(i, 0), Piece.new(layout[i], Piece.Side.WHITE, Vector2(i, 0)));
-		SetPiece(Vector2(i, 7), Piece.new(layout[i], Piece.Side.BLACK, Vector2(i, 7)));
+		SetPiece(Vector2(i, 0), layout[i].new(Piece.Side.WHITE, Vector2(i, 0)));
+		SetPiece(Vector2(i, 7), layout[i].new(Piece.Side.BLACK, Vector2(i, 7)));
