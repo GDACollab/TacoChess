@@ -37,8 +37,13 @@ class Piece:
 		return [];
 	
 	func basic_move(pos: Vector2) -> Chessboard.GameState:
+		Chessboard.MovePiece(self.position, pos);
 		self.position = pos;
 		return Chessboard.logic.update_game_board();
+	
+	func check_capture(pos : Vector2) -> bool:
+		var piece = Chessboard.GetPiece(pos);
+		return piece != null && piece.side != self.side;
 
 var _board : Array[Chessboard.Piece] = [];
 
@@ -48,7 +53,7 @@ func SetPiece(pos : Vector2, piece : Piece = null):
 
 # This is required because en passant needs piece history:
 func MovePiece(pos : Vector2, newPos : Vector2):
-	_board[newPos.x + newPos.y * 8] = _board[pos.x + pos.y * 8];
+	SetPiece(newPos, _board[pos.x + pos.y * 8]);
 	SetPiece(pos);
 
 func GetPiece(pos : Vector2) -> Chessboard.Piece:
@@ -79,6 +84,8 @@ func _ready():
 	DebugPrintBoard();
 
 func ClearBoard():
+	_board.fill(null);
+	
 	var layout = [Piece.Type.ROOK, Piece.Type.KNIGHT, Piece.Type.BISHOP, Piece.Type.QUEEN, Piece.Type.KING, Piece.Type.BISHOP, Piece.Type.KNIGHT, Piece.Type.ROOK];
 	Move.new(Move.Type.PROMOTION, Vector2(0, 0));
 	for i in range(8):

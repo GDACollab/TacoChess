@@ -36,6 +36,8 @@ class TestPawn:
 	func test_is_pawn():
 		assert_typeof(_whitePawn, typeof(Logic.Pawn));
 		assert_typeof(_blackPawn, typeof(Logic.Pawn));
+		assert_eq(_whitePawn.side, Chessboard.Piece.Side.WHITE);
+		assert_eq(_blackPawn.side, Chessboard.Piece.Side.BLACK);
 	
 	func test_can_move_start():
 		var t = get_move_forward(_whitePawn);
@@ -52,25 +54,30 @@ class TestPawn:
 		_whitePawn.get_possible_moves()[0].execute.call();
 		_blackPawn.get_possible_moves()[1].execute.call();
 		assert_true(PieceLogicTest.assert_move_arr_eq(_whitePawn.get_possible_moves(), [get_move_forward(_whitePawn)]), "White Pawn Moves");
-		assert_true(PieceLogicTest.assert_move_arr_eq(_blackPawn.get_possible_moves(), [get_move_forward(_blackPawn)]), "Black Pawn Moves");
+		assert_true(PieceLogicTest.assert_move_arr_eq(_blackPawn.get_possible_moves(), [get_move_forward(_blackPawn, -1)]), "Black Pawn Moves");
 	
 	func test_can_promote():
 		Chessboard.SetPiece(Vector2(0, 6));
 		while (_whitePawn.position.y < 6):
 			_whitePawn.get_possible_moves()[0].execute.call();
 			# Should be promotion
-		assert_true(PieceLogicTest.assert_move_arr_eq(_whitePawn.get_possible_moves(), [Chessboard.Move.new(Chessboard.Move.Type.MOVE, Vector2(0, 7))]), "White Pawn Move Promote");
+		assert_true(PieceLogicTest.assert_move_arr_eq(_whitePawn.get_possible_moves(), [Chessboard.Move.new(Chessboard.Move.Type.PROMOTION, Vector2(0, 7))]), "White Pawn Move Promote");
 	
 	# Google "Google En Passant"
 	func test_can_en_passant():
 		while (_whitePawn.position.y < 6):
 			_whitePawn.get_possible_moves()[0].execute.call();
 		_blackPawn.get_possible_moves()[1].execute.call();
-		assert_eq(_whitePawn.get_possible_moves(), [Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(1, 6))]);
+		assert_true(PieceLogicTest.assert_move_arr_eq(_whitePawn.get_possible_moves(), [Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(1, 6))]), "White Pawn Can En Passant");
 	
 	func test_can_capture():
 		_whitePawn.get_possible_moves()[1].execute.call();
 		_blackPawn.get_possible_moves()[1].execute.call();
-		assert_eq(_whitePawn.get_possible_moves(), [get_move_forward(_whitePawn), Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(1, 4))]);
+		assert_true(PieceLogicTest.assert_move_arr_eq(_whitePawn.get_possible_moves(), [get_move_forward(_whitePawn), Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(1, 4))]), "White Pawn Can Capture");
 		
-		assert_eq(_blackPawn.get_possible_moves(), [get_move_forward(_blackPawn), Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(0, 3))]);
+		assert_true(PieceLogicTest.assert_move_arr_eq(_blackPawn.get_possible_moves(), [get_move_forward(_blackPawn, -1), Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(0, 3))]), "Black Pawn Can Capture");
+	
+	func test_blocked():
+		_whitePawn.get_possible_moves()[1].execute.call();
+		Chessboard.GetPiece(Vector2(0, 6)).get_possible_moves()[1].execute.call();
+		assert_eq(_whitePawn.get_possible_moves(), []);
