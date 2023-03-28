@@ -10,7 +10,7 @@ static func assert_move_eq(move1 : Chessboard.Move, move2: Chessboard.Move) -> b
 		return false;
 	return true;
 
-static func assert_move_arr_eq(arr1 : Array, arr2 : Array) -> bool:
+static func assert_move_arr_eq(arr1 : Array[Chessboard.Move], arr2 : Array[Chessboard.Move]) -> bool:
 	if len(arr1) != len(arr2):
 		print("Not equal length");
 		return false;
@@ -103,4 +103,24 @@ class TestRook:
 		assert_true(_whiteRook is Logic.Rook);
 	
 	func test_rook_trapped():
-		pass
+		Chessboard.SetPiece(Vector2(1, 0), Logic.Pawn.new(Chessboard.Piece.Side.WHITE, Vector2(1, 0)));
+		assert_eq(_whiteRook.get_possible_moves(), []);
+	
+	func move_in_dir(pos: Vector2, vector: Vector2, squares: Array[int]) -> Array[Chessboard.Move]:
+		var moves : Array[Chessboard.Move] = [];
+		for square in squares:
+			moves.append(Chessboard.Move.new(Chessboard.Move.Type.MOVE, pos + vector * square));
+		return moves;
+	
+	func test_rook_move_up_and_capture():
+		var moves = move_in_dir(Vector2(0, 0), Vector2(0, 1), [1, 2, 3, 4]);
+		moves.append(Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(0, 5)));
+		assert_true(PieceLogicTest.assert_move_arr_eq(_whiteRook.get_possible_moves(), moves), "Rook Move Up And Capture");
+	
+	func test_four_way_movement():
+		_whiteRook.get_possible_moves()[2].execute.call();
+		_whiteRook.get_possible_moves()[4].execute.call();
+		var moves = move_in_dir(Vector2(1, 3), Vector2(0, 1), [2, 4]);
+		moves.append(Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(1, 5)));
+		moves.append_array(move_in_dir(Vector2(1, 3), Vector2(1, 0), [0, 2, 3, 4, 5, 6, 7]));
+		assert_true(PieceLogicTest.assert_move_arr_eq(_whiteRook.get_possible_moves(), moves), "Rook Four Way");
