@@ -70,6 +70,10 @@ class Rook extends Chessboard.Piece:
 		castle_state = CastleState.START;
 		super(Chessboard.Piece.Type.ROOK, side, position);
 	
+	func update_castle_state(pos: Vector2):
+		self.castle_state = CastleState.PLAY;
+		self.basic_move(pos);
+	
 	func rook_raycast(ray: Vector2) -> Array[Chessboard.Move]:
 		var moves : Array[Chessboard.Move] = [];
 		for i in range(1, 7):
@@ -78,10 +82,14 @@ class Rook extends Chessboard.Piece:
 				break;
 			var piece = Chessboard.GetPiece(new_pos);
 			if piece == null:
-				moves.append(Chessboard.Move.new(Chessboard.Move.Type.MOVE, new_pos));
+				var move = Chessboard.Move.new(Chessboard.Move.Type.MOVE, new_pos);
+				move.execute = self.update_castle_state.bind(new_pos);
+				moves.append(move);
 			else:
 				if piece.side != self.side:
-					moves.append(Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, new_pos));
+					var move = Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, new_pos);
+					move.execute = self.update_castle_state.bind(new_pos);
+					moves.append(move);
 				break;
 		return moves;
 

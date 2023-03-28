@@ -97,13 +97,13 @@ class TestRook:
 	func before_each():
 		Chessboard.ClearBoard();
 		_whiteRook = Chessboard.GetPiece(Vector2(0, 0));
-		Chessboard.SetPiece(Vector2(1, 0));
+		Chessboard.SetPiece(Vector2(0, 1));
 	
 	func test_is_rook():
 		assert_true(_whiteRook is Logic.Rook);
 	
 	func test_rook_trapped():
-		Chessboard.SetPiece(Vector2(1, 0), Logic.Pawn.new(Chessboard.Piece.Side.WHITE, Vector2(1, 0)));
+		Chessboard.SetPiece(Vector2(0, 1), Logic.Pawn.new(Chessboard.Piece.Side.WHITE, Vector2(1, 0)));
 		assert_eq(_whiteRook.get_possible_moves(), []);
 	
 	func move_in_dir(pos: Vector2, vector: Vector2, squares: Array[int]) -> Array[Chessboard.Move]:
@@ -113,14 +113,16 @@ class TestRook:
 		return moves;
 	
 	func test_rook_move_up_and_capture():
-		var moves = move_in_dir(Vector2(0, 0), Vector2(0, 1), [1, 2, 3, 4]);
-		moves.append(Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(0, 5)));
+		var moves = move_in_dir(Vector2(0, 0), Vector2(0, 1), [1, 2, 3, 4, 5]);
+		moves.append(Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(0, 6)));
 		assert_true(PieceLogicTest.assert_move_arr_eq(_whiteRook.get_possible_moves(), moves), "Rook Move Up And Capture");
 	
 	func test_four_way_movement():
 		_whiteRook.get_possible_moves()[2].execute.call();
-		_whiteRook.get_possible_moves()[4].execute.call();
-		var moves = move_in_dir(Vector2(1, 3), Vector2(0, 1), [2, 4]);
-		moves.append(Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(1, 5)));
-		moves.append_array(move_in_dir(Vector2(1, 3), Vector2(1, 0), [0, 2, 3, 4, 5, 6, 7]));
+		_whiteRook.get_possible_moves()[6].execute.call();
+		var moves = move_in_dir(Vector2(1, 0), Vector2(0, 1), [4, 5]);
+		moves.append(Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(1, 6)));
+		moves.append(Chessboard.Move.new(Chessboard.Move.Type.MOVE, Vector2(1, 2)));
+		moves.append_array(move_in_dir(Vector2(0, 3), Vector2(1, 0), [2, 3, 4, 5, 6, 7, 0]));
+		var pos = _whiteRook.get_possible_moves();
 		assert_true(PieceLogicTest.assert_move_arr_eq(_whiteRook.get_possible_moves(), moves), "Rook Four Way");
