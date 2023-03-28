@@ -122,17 +122,17 @@ class Knight extends Chessboard.Piece:
 	func get_possible_moves() -> Array[Chessboard.Move]:
 		var moves : Array[Chessboard.Move] = [];
 		
-		for i in range(-4, 4, 2):
+		for i in range(-2, 3):
 			if i == 0:
 				continue;
 			var mul = 2;
-			if i % 4 == 0:
+			if i % 2 == 0:
 				mul = 0.5;
 			
 			var move1 = gen_knight_move(self.position + Vector2(i, i * mul));
 			if move1 != null:
 				moves.append(move1);
-			var move2 = gen_knight_move(self.position + Vector2(i * -mul));
+			var move2 = gen_knight_move(self.position + Vector2(i, i * -mul));
 			if move2 != null:
 				moves.append(move2);
 		return moves;

@@ -132,6 +132,7 @@ class TestKnight:
 	
 	var _whiteKnight = null;
 	func before_each():
+		Chessboard.ClearBoard();
 		_whiteKnight = Chessboard.GetPiece(Vector2(1, 0));
 	
 	func get_move(pos: Vector2, type: Chessboard.Move.Type = Chessboard.Move.Type.MOVE) -> Chessboard.Move:
@@ -143,5 +144,8 @@ class TestKnight:
 	
 	func test_full_diag():
 		_whiteKnight.get_possible_moves()[1].execute.call();
-		var moves : Array[Chessboard.Move] = [get_move(Vector2(1, 4))];
-		_whiteKnight.get_possible_moves()[1].execute.call();
+		var moves : Array[Chessboard.Move] = [get_move(Vector2(0, 3)), get_move(Vector2(1, 0)), get_move(Vector2(1, 4)), get_move(Vector2(3, 4)), get_move(Vector2(4, 3))];
+		assert_true(PieceLogicTest.assert_move_arr_eq(_whiteKnight.get_possible_moves(), moves), "Knight Move 1");
+		_whiteKnight.get_possible_moves()[3].execute.call();
+		moves = [get_move(Vector2(1, 3)), get_move(Vector2(1, 5)), get_move(Vector2(2, 2)), get_move(Vector2(2, 6), Chessboard.Move.Type.CAPTURE), get_move(Vector2(4, 6), Chessboard.Move.Type.CAPTURE), get_move(Vector2(4, 2)), get_move(Vector2(5, 5)), get_move(Vector2(5, 3))];
+		assert_true(PieceLogicTest.assert_move_arr_eq(_whiteKnight.get_possible_moves(), moves), "Knight Move 2");
