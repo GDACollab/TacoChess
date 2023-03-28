@@ -70,9 +70,9 @@ class Rook extends Chessboard.Piece:
 		castle_state = CastleState.START;
 		super(Chessboard.Piece.Type.ROOK, side, position);
 	
-	func update_castle_state(pos: Vector2):
+	func update_castle_state(pos: Vector2) -> Chessboard.GameState:
 		self.castle_state = CastleState.PLAY;
-		self.basic_move(pos);
+		return self.basic_move(pos);
 	
 	func rook_raycast(ray: Vector2) -> Array[Chessboard.Move]:
 		var moves : Array[Chessboard.Move] = [];
@@ -104,6 +104,38 @@ class Rook extends Chessboard.Piece:
 class Knight extends Chessboard.Piece:
 	func _init(side: Chessboard.Piece.Side, position: Vector2):
 		super(Chessboard.Piece.Type.KNIGHT, side, position);
+	
+	func gen_knight_move(pos : Vector2) -> Chessboard.Move:
+		if pos.x < 0 || pos.x > 7 || pos.y < 0 || pos.y > 7:
+			return null;
+			
+		var piece = Chessboard.GetPiece(pos);
+		var move : Chessboard.Move;
+		if piece == null:
+			move = Chessboard.Move.new(Chessboard.Move.Type.MOVE, pos);
+			move.execute = self.basic_move.bind(pos);
+		elif piece.side != self.side:
+			move = Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, pos);
+			move.execute = self.basic_move.bind(pos);
+		return move;
+	
+	func get_possible_moves() -> Array[Chessboard.Move]:
+		var moves : Array[Chessboard.Move] = [];
+		
+		for i in range(-4, 4, 2):
+			if i == 0:
+				continue;
+			var mul = 2;
+			if i % 4 == 0:
+				mul = 0.5;
+			
+			var move1 = gen_knight_move(self.position + Vector2(i, i * mul));
+			if move1 != null:
+				moves.append(move1);
+			var move2 = gen_knight_move(self.position + Vector2(i * -mul));
+			if move2 != null:
+				moves.append(move2);
+		return moves;
 
 class Bishop extends Chessboard.Piece:
 	func _init(side: Chessboard.Piece.Side, position: Vector2):
