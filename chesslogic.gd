@@ -73,32 +73,13 @@ class Rook extends Chessboard.Piece:
 	func update_castle_state(pos: Vector2) -> Chessboard.GameState:
 		self.castle_state = CastleState.PLAY;
 		return self.basic_move(pos);
-	
-	func rook_raycast(ray: Vector2) -> Array[Chessboard.Move]:
-		var moves : Array[Chessboard.Move] = [];
-		for i in range(1, 7):
-			var new_pos = (ray * i) + self.position;
-			if new_pos.x < 0 || new_pos.x > 7 || new_pos.y < 0 || new_pos.y > 7:
-				break;
-			var piece = Chessboard.GetPiece(new_pos);
-			if piece == null:
-				var move = Chessboard.Move.new(Chessboard.Move.Type.MOVE, new_pos);
-				move.execute = self.update_castle_state.bind(new_pos);
-				moves.append(move);
-			else:
-				if piece.side != self.side:
-					var move = Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, new_pos);
-					move.execute = self.update_castle_state.bind(new_pos);
-					moves.append(move);
-				break;
-		return moves;
 
 	func get_possible_moves() -> Array[Chessboard.Move]:
 		var moves : Array[Chessboard.Move] = [];
-		moves.append_array(rook_raycast(Vector2(0, 1)));
-		moves.append_array(rook_raycast(Vector2(0, -1)));
-		moves.append_array(rook_raycast(Vector2(1, 0)));
-		moves.append_array(rook_raycast(Vector2(-1, 0)));
+		moves.append_array(self.raycast(Vector2(0, 1), self.update_castle_state));
+		moves.append_array(self.raycast(Vector2(0, -1), self.update_castle_state));
+		moves.append_array(self.raycast(Vector2(1, 0), self.update_castle_state));
+		moves.append_array(self.raycast(Vector2(-1, 0), self.update_castle_state));
 		return moves;
 
 class Knight extends Chessboard.Piece:
@@ -140,6 +121,14 @@ class Knight extends Chessboard.Piece:
 class Bishop extends Chessboard.Piece:
 	func _init(side: Chessboard.Piece.Side, position: Vector2):
 		super(Chessboard.Piece.Type.BISHOP, side, position);
+	
+	func get_possible_moves() -> Array[Chessboard.Move]:
+		var moves : Array[Chessboard.Move] = [];
+		moves.append_array(self.raycast(Vector2(-1, -1)));
+		moves.append_array(self.raycast(Vector2(-1, 1)));
+		moves.append_array(self.raycast(Vector2(1, 1)));
+		moves.append_array(self.raycast(Vector2(1, -1)));
+		return moves;
 
 class King extends Chessboard.Piece:
 	func _init(side: Chessboard.Piece.Side, position: Vector2):

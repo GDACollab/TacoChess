@@ -48,6 +48,25 @@ class Piece:
 		else:
 			return false;
 
+	func raycast(ray: Vector2, execute: Callable = basic_move) -> Array[Chessboard.Move]:
+		var moves : Array[Chessboard.Move] = [];
+		for i in range(1, 7):
+			var new_pos = (ray * i) + self.position;
+			if new_pos.x < 0 || new_pos.x > 7 || new_pos.y < 0 || new_pos.y > 7:
+				break;
+			var piece = Chessboard.GetPiece(new_pos);
+			if piece == null:
+				var move = Chessboard.Move.new(Chessboard.Move.Type.MOVE, new_pos);
+				move.execute = execute.bind(new_pos);
+				moves.append(move);
+			else:
+				if piece.side != self.side:
+					var move = Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, new_pos);
+					move.execute = execute.bind(new_pos);
+					moves.append(move);
+				break;
+		return moves;
+
 var _board : Array[Chessboard.Piece] = [];
 
 # Also works for clearing a piece, since it just sets it to null.

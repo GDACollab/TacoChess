@@ -1,5 +1,5 @@
-extends GutTest
-class_name PieceLogicTest
+extends GutTest;
+class_name PieceLogicTest;
 
 static func assert_move_eq(move1 : Chessboard.Move, move2: Chessboard.Move) -> bool:
 	if move1.type != move2.type:
@@ -21,7 +21,7 @@ static func assert_move_arr_eq(arr1 : Array[Chessboard.Move], arr2 : Array[Chess
 	return true;
 
 class TestPawn:
-	extends GutTest
+	extends GutTest;
 	
 	var _whitePawn = null;
 	var _blackPawn = null;
@@ -91,7 +91,7 @@ class TestPawn:
 		assert_eq(_whitePawn.get_possible_moves(), []);
 
 class TestRook:
-	extends GutTest
+	extends GutTest;
 	
 	var _whiteRook = null;
 	func before_each():
@@ -128,7 +128,7 @@ class TestRook:
 		assert_true(PieceLogicTest.assert_move_arr_eq(_whiteRook.get_possible_moves(), moves), "Rook Four Way");
 
 class TestKnight:
-	extends GutTest
+	extends GutTest;
 	
 	var _whiteKnight = null;
 	func before_each():
@@ -137,6 +137,9 @@ class TestKnight:
 	
 	func get_move(pos: Vector2, type: Chessboard.Move.Type = Chessboard.Move.Type.MOVE) -> Chessboard.Move:
 		return Chessboard.Move.new(type, pos);
+	
+	func test_is_knight():
+		assert_true(_whiteKnight is Logic.Knight);
 	
 	func test_hop_over():
 		var moves : Array[Chessboard.Move] = [get_move(Vector2(0, 2)), get_move(Vector2(2, 2))];
@@ -149,3 +152,38 @@ class TestKnight:
 		_whiteKnight.get_possible_moves()[3].execute.call();
 		moves = [get_move(Vector2(1, 3)), get_move(Vector2(1, 5)), get_move(Vector2(2, 2)), get_move(Vector2(2, 6), Chessboard.Move.Type.CAPTURE), get_move(Vector2(4, 6), Chessboard.Move.Type.CAPTURE), get_move(Vector2(4, 2)), get_move(Vector2(5, 5)), get_move(Vector2(5, 3))];
 		assert_true(PieceLogicTest.assert_move_arr_eq(_whiteKnight.get_possible_moves(), moves), "Knight Move 2");
+
+class TestBishop:
+	extends GutTest;
+	
+	var _whiteBishop = null;
+	var _blackBishop = null;
+	
+	func before_each():
+		Chessboard.ClearBoard();
+		_whiteBishop = Chessboard.GetPiece(Vector2(2, 0));
+		_blackBishop = Chessboard.GetPiece(Vector2(5, 7));
+	
+	func test_is_bishop():
+		assert_true(_whiteBishop is Logic.Bishop);
+		assert_true(_blackBishop is Logic.Bishop);
+	
+	func test_is_trapped():
+		assert_eq(_whiteBishop.get_possible_moves(), []);
+		assert_eq(_blackBishop.get_possible_moves(), []);
+	
+	func get_move(pos: Vector2, type: Chessboard.Move.Type = Chessboard.Move.Type.MOVE) -> Chessboard.Move:
+		return Chessboard.Move.new(type, pos);
+	
+	func test_paths_open():
+		Chessboard.SetPiece(Vector2(3, 1));
+		Chessboard.SetPiece(Vector2(1, 1));
+		Chessboard.SetPiece(Vector2(4, 6));
+		Chessboard.SetPiece(Vector2(6, 6));
+		
+		assert_true(PieceLogicTest.assert_move_arr_eq(_whiteBishop.get_possible_moves(), [get_move(Vector2(1, 1)), get_move(Vector2(0, 2)), get_move(Vector2(3, 1)), get_move(Vector2(4, 2)), get_move(Vector2(5, 3)), get_move(Vector2(6, 4)), get_move(Vector2(7, 5))]), "White Bishop Paths");
+		
+		assert_true(PieceLogicTest.assert_move_arr_eq(_blackBishop.get_possible_moves(), [get_move(Vector2(4, 6)), get_move(Vector2(3, 5)), get_move(Vector2(2, 4)), get_move(Vector2(1, 3)), get_move(Vector2(0, 2)), get_move(Vector2(6, 6)), get_move(Vector2(7, 5))]), "Black Bishop Paths");
+
+class TestQueen:
+	extends GutTest;
