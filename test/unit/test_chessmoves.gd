@@ -280,5 +280,4 @@ class TestKing:
 		_whiteKing.get_possible_moves()[2].execute.call();
 		_whiteKing.get_possible_moves()[3].execute.call();
 		_whiteKing.get_possible_moves()[4].execute.call();
-		Chessboard.DebugPrintBoard();
 		assert_true(PieceLogicTest.assert_move_arr_eq(_whiteKing.get_possible_moves(), [get_move(Vector2(3, 3)), get_move(Vector2(3, 4)), get_move(Vector2(4, 3)), get_move(Vector2(5, 3)), get_move(Vector2(5, 4))]), "White King Cannot Place Self In Check");
