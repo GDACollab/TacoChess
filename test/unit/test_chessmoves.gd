@@ -91,7 +91,8 @@ class TestPawn:
 		assert_eq(_whitePawn.get_possible_moves(), []);
 	
 	func test_threatened():
-		pass
+		assert_true(PieceLogicTest.assert_move_arr_eq(_whitePawn.get_pawn_threatened_squares(), [Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(1, 2))]), "White Pawn Threatened Squares");
+		assert_true(PieceLogicTest.assert_move_arr_eq(_blackPawn.get_pawn_threatened_squares(), [Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(2, 5)), Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(0, 5))]), "Black Pawn Threatened Squares");
 
 class TestRook:
 	extends GutTest;

@@ -20,7 +20,11 @@ static func update_game_board(moved_piece: Chessboard.Piece):
 
 static func update_piece_threatened_squares(piece : Chessboard.Piece):
 	var threatened_arr = Chessboard.threatened_squares[piece.side];
-	var moves = piece.get_threatened();
+	var moves = [];
+	if piece.type == Chessboard.Piece.Type.PAWN:
+		moves = piece.get_pawn_threatened_squares();
+	else:
+		moves = piece.get_possible_moves();
 	
 	var check = null;
 	for move in moves:
@@ -30,6 +34,9 @@ static func update_piece_threatened_squares(piece : Chessboard.Piece):
 			if threatened_piece != null && threatened_piece.side != piece.side && threatened_piece is King:
 				check = threatened_piece;
 	return check;
+
+static func within_bounds(pos: Vector2):
+	return pos.x >= 0 && pos.x <= 7 && pos.y >= 0 && pos.y <= 7;
 
 class Pawn extends Chessboard.Piece:
 	enum MoveState {START, MOVED_TWO, PLAY};
@@ -50,6 +57,24 @@ class Pawn extends Chessboard.Piece:
 		var past_pawn = Chessboard.GetPiece(pos - Vector2(0, move_dir));
 		var is_pawn = past_pawn && past_pawn is Pawn;
 		return is_pawn && past_pawn.side != self.side && past_pawn.pawn_move_state == MoveState.MOVED_TWO;
+	
+	func get_pawn_threatened_squares() -> Array[Chessboard.Move]:
+		var move_list : Array[Chessboard.Move] = [];
+		
+		var move_dir = get_move_dir();
+		var cap_pos = self.position + Vector2(1, move_dir);
+		var piece = Chessboard.GetPiece(cap_pos);
+		if Logic.within_bounds(cap_pos) && piece == null:
+			var cap = Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, cap_pos);
+			cap.execute = self.pawn_move.bind(cap_pos);
+			move_list.append(cap);
+		cap_pos -= Vector2(2, 0);
+		piece = Chessboard.GetPiece(cap_pos);
+		if Logic.within_bounds(cap_pos) && piece == null:
+			var cap = Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, cap_pos);
+			cap.execute = self.pawn_move.bind(cap_pos);
+			move_list.append(cap);
+		return move_list;
 	
 	func get_possible_moves() -> Array[Chessboard.Move]:
 		var move_list : Array[Chessboard.Move] = [];
@@ -108,7 +133,7 @@ class Knight extends Chessboard.Piece:
 		super(Chessboard.Piece.Type.KNIGHT, side, position);
 	
 	func gen_knight_move(pos : Vector2) -> Chessboard.Move:
-		if pos.x < 0 || pos.x > 7 || pos.y < 0 || pos.y > 7:
+		if !Logic.within_bounds(pos):
 			return null;
 			
 		var piece = Chessboard.GetPiece(pos);
@@ -173,7 +198,7 @@ class King extends Chessboard.Piece:
 	
 	func get_king_move(offset : Vector2) -> Chessboard.Move:
 		var new_pos = self.position + offset;
-		if new_pos.x >= 0 && new_pos.x <= 7 && new_pos.y >= 0 && new_pos.y <= 7:
+		if Logic.within_bounds(new_pos):
 			var piece = Chessboard.GetPiece(new_pos);
 			if piece != null && piece.side != self.side:
 				var move = Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, new_pos);

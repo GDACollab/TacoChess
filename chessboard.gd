@@ -38,16 +38,13 @@ class Piece:
 	func get_possible_moves() -> Array[Chessboard.Move]:
 		return [];
 	
-	func get_threatened() -> Array[Chessboard.Move]:
-		return [];
-	
 	func basic_move(pos: Vector2) -> Chessboard.GameState:
 		Chessboard.MovePiece(self.position, pos);
 		self.position = pos;
 		return Chessboard.logic.update_game_board(self);
 	
 	func check_capture(pos : Vector2) -> bool:
-		if pos.x >= 0 && pos.x <= 7 && pos.y >= 0 && pos.y <= 7:
+		if Chessboard.logic.within_bounds(pos):
 			var piece = Chessboard.GetPiece(pos);
 			return piece != null && piece.side != self.side;
 		else:
@@ -57,7 +54,7 @@ class Piece:
 		var moves : Array[Chessboard.Move] = [];
 		for i in range(1, 7):
 			var new_pos = (ray * i) + self.position;
-			if new_pos.x < 0 || new_pos.x > 7 || new_pos.y < 0 || new_pos.y > 7:
+			if !Chessboard.logic.within_bounds(new_pos):
 				break;
 			var piece = Chessboard.GetPiece(new_pos);
 			if piece == null:
@@ -76,7 +73,7 @@ var _board : Array[Chessboard.Piece] = [];
 
 # Also works for clearing a piece, since it just sets it to null.
 func SetPiece(pos : Vector2, piece : Piece = null):
-	if (pos.x >= 0 && pos.x <= 7 && pos.y >= 0 && pos.y <= 7):
+	if logic.within_bounds(pos):
 		_board[pos.x + pos.y * 8] = piece;
 
 # This is required because en passant needs piece history:
