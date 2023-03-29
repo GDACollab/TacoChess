@@ -2,11 +2,13 @@ extends Node
 
 # Because class_name doesn't work for singletons:
 var logic = preload("res://chesslogic.gd");
+# Two arrays, one represents the squares threatened by side 0 and 1 respectively (WHITE and BLACK).
+var threatened_squares = [[], []];
 
 class GameState:
 	# Play means continue as normal, Draw means both sides have lost, Check means a side is in danger of losing, Checkmate means a side has lost.
 	enum Type {PLAY, DRAW, CHECK, CHECKMATE};
-	var type : Chessboard.GameState.Type;
+	var type : Chessboard.GameState.Type = Type.PLAY;
 	# null if there's currently no piece in check.
 	# If the type is CHECKMATE, then this side has lost:
 	var inCheck : Chessboard.Piece;
@@ -34,6 +36,9 @@ class Piece:
 		side = _side;
 		position = _pos;
 	func get_possible_moves() -> Array[Chessboard.Move]:
+		return [];
+	
+	func get_threatened() -> Array[Chessboard.Move]:
 		return [];
 	
 	func basic_move(pos: Vector2) -> Chessboard.GameState:

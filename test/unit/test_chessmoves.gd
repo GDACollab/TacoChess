@@ -89,6 +89,9 @@ class TestPawn:
 		_whitePawn.get_possible_moves()[1].execute.call();
 		Chessboard.GetPiece(Vector2(0, 6)).get_possible_moves()[1].execute.call();
 		assert_eq(_whitePawn.get_possible_moves(), []);
+	
+	func test_threatened():
+		pass
 
 class TestRook:
 	extends GutTest;
@@ -242,4 +245,39 @@ class TestQueen:
 class TestKing:
 	extends GutTest;
 	
+	var _whiteKing;
 	
+	func before_each():
+		Chessboard.ClearBoard();
+		_whiteKing = Chessboard.GetPiece(Vector2(4, 0));
+	
+	func test_is_king():
+		assert_true(_whiteKing is Logic.King);
+	
+	func test_is_trapped():
+		assert_eq(_whiteKing.get_possible_moves(), []);
+	
+	func get_move(pos: Vector2, type: Chessboard.Move.Type = Chessboard.Move.Type.MOVE) -> Chessboard.Move:
+		return Chessboard.Move.new(type, pos);
+	
+	func test_can_move():
+		Chessboard.SetPiece(Vector2(4, 1));
+		assert_true(PieceLogicTest.assert_move_arr_eq(_whiteKing.get_possible_moves(), [get_move(Vector2(4, 1))]), "White King Move Up");
+	
+	func test_can_move_full():
+		Chessboard.SetPiece(Vector2(4, 1));
+		_whiteKing.get_possible_moves()[0].execute.call();
+		assert_true(PieceLogicTest.assert_move_arr_eq(_whiteKing.get_possible_moves(), [get_move(Vector2(3, 2)), get_move(Vector2(4, 0)), get_move(Vector2(4, 2)), get_move(Vector2(5, 2))]), "White King Move All But Sides");
+		_whiteKing.get_possible_moves()[2].execute.call();
+		assert_true(PieceLogicTest.assert_move_arr_eq(_whiteKing.get_possible_moves(), [get_move(Vector2(3, 2)), get_move(Vector2(3, 3)), get_move(Vector2(4, 1)), get_move(Vector2(4, 3)), get_move(Vector2(5, 2)), get_move(Vector2(5, 3))]), "White King Move Still Limited");
+		_whiteKing.get_possible_moves()[3].execute.call();
+		assert_true(PieceLogicTest.assert_move_arr_eq(_whiteKing.get_possible_moves(), [get_move(Vector2(3, 2)), get_move(Vector2(3, 3)), get_move(Vector2(3, 4)), get_move(Vector2(4, 2)), get_move(Vector2(4, 4)), get_move(Vector2(5, 2)), get_move(Vector2(5, 3)), get_move(Vector2(5, 4))]), "White King Move All");
+	
+	func test_cannot_place_self_in_check():
+		Chessboard.SetPiece(Vector2(4, 1));
+		_whiteKing.get_possible_moves()[0].execute.call();
+		_whiteKing.get_possible_moves()[2].execute.call();
+		_whiteKing.get_possible_moves()[3].execute.call();
+		_whiteKing.get_possible_moves()[4].execute.call();
+		Chessboard.DebugPrintBoard();
+		assert_true(PieceLogicTest.assert_move_arr_eq(_whiteKing.get_possible_moves(), [get_move(Vector2(3, 3)), get_move(Vector2(3, 4)), get_move(Vector2(4, 3)), get_move(Vector2(5, 3)), get_move(Vector2(5, 4))]), "White King Cannot Place Self In Check");

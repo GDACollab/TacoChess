@@ -1,14 +1,35 @@
-extends Node
 class_name Logic;
 
 static func update_game_board(moved_piece: Chessboard.Piece):
+	# Moving one piece affects a whole bunch of what squares are or aren't threatened:
+	Chessboard.threatened_squares = [[], []];
+	
+	var game_state = Chessboard.GameState.new();
 	for i in range(8):
 		for j in range(8):
 			var piece = Chessboard.GetPiece(Vector2(i, j));
-			if piece != null && piece != moved_piece && piece.side == moved_piece.side:
-				if piece is Pawn && (piece.pawn_move_state == Pawn.MoveState.MOVED_TWO):
-					piece.pawn_move_state = Pawn.MoveState.PLAY;
-	return Chessboard.GameState.new();
+			if piece != null:
+				if piece != moved_piece && piece.side == moved_piece.side:
+					if piece is Pawn && (piece.pawn_move_state == Pawn.MoveState.MOVED_TWO):
+						piece.pawn_move_state = Pawn.MoveState.PLAY;
+				var possible_check = update_piece_threatened_squares(piece);
+				if possible_check != null:
+					game_state.inCheck = possible_check;
+					game_state.type = Chessboard.GameState.Type.CHECK;
+	return game_state;
+
+static func update_piece_threatened_squares(piece : Chessboard.Piece):
+	var threatened_arr = Chessboard.threatened_squares[piece.side];
+	var moves = piece.get_threatened();
+	
+	var check = null;
+	for move in moves:
+		if !threatened_arr.has(move.position):
+			threatened_arr.append(move.position);
+			var threatened_piece = Chessboard.GetPiece(move.position);
+			if threatened_piece != null && threatened_piece.side != piece.side && threatened_piece is King:
+				check = threatened_piece;
+	return check;
 
 class Pawn extends Chessboard.Piece:
 	enum MoveState {START, MOVED_TWO, PLAY};
@@ -29,7 +50,7 @@ class Pawn extends Chessboard.Piece:
 		var past_pawn = Chessboard.GetPiece(pos - Vector2(0, move_dir));
 		var is_pawn = past_pawn && past_pawn is Pawn;
 		return is_pawn && past_pawn.side != self.side && past_pawn.pawn_move_state == MoveState.MOVED_TWO;
-		
+	
 	func get_possible_moves() -> Array[Chessboard.Move]:
 		var move_list : Array[Chessboard.Move] = [];
 		
@@ -149,3 +170,30 @@ class Queen extends Chessboard.Piece:
 class King extends Chessboard.Piece:
 	func _init(side: Chessboard.Piece.Side, position: Vector2):
 		super(Chessboard.Piece.Type.KING, side, position);
+	
+	func get_king_move(offset : Vector2) -> Chessboard.Move:
+		var new_pos = self.position + offset;
+		if new_pos.x >= 0 && new_pos.x <= 7 && new_pos.y >= 0 && new_pos.y <= 7:
+			var piece = Chessboard.GetPiece(new_pos);
+			if piece != null && piece.side != self.side:
+				var move = Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, new_pos);
+				move.execute = self.basic_move.bind(new_pos);
+				return move;
+			elif piece == null && !Chessboard.threatened_squares[abs(1 - self.side)].has(new_pos):
+				var move = Chessboard.Move.new(Chessboard.Move.Type.MOVE, new_pos);
+				move.execute = self.basic_move.bind(new_pos);
+				return move;
+		return null;
+	
+	func get_possible_moves() -> Array[Chessboard.Move]:
+		var moves : Array[Chessboard.Move] = [];
+		for i in range(-1, 2):
+			for j in range(-1, 2):
+				if i == 0 && j == 0:
+					continue;
+				var possible = get_king_move(Vector2(i, j));
+				if possible != null:
+					moves.append(possible);
+		# Castling:
+		
+		return moves;
