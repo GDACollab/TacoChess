@@ -187,3 +187,59 @@ class TestBishop:
 
 class TestQueen:
 	extends GutTest;
+	
+	var _whiteQueen = null;
+	
+	func before_each():
+		Chessboard.ClearBoard();
+		_whiteQueen = Chessboard.GetPiece(Vector2(3, 0));
+		
+	func test_is_queen():
+		assert_true(_whiteQueen is Logic.Queen);
+		
+	
+	func test_is_trapped():
+		assert_eq(_whiteQueen.get_possible_moves(), []);
+	
+	func move_in_dir(pos: Vector2, vector: Vector2, squares: Array[int]) -> Array[Chessboard.Move]:
+		var moves : Array[Chessboard.Move] = [];
+		for square in squares:
+			moves.append(Chessboard.Move.new(Chessboard.Move.Type.MOVE, pos + vector * square));
+		return moves;
+	
+	func test_move_forward_only():
+		Chessboard.SetPiece(Vector2(3, 1));
+		var moves : Array[Chessboard.Move] = [];
+		moves.append_array(move_in_dir(Vector2(3, 0), Vector2(0, 1), [1, 2, 3, 4, 5]));
+		moves.append(Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(3, 6)));
+		assert_true(PieceLogicTest.assert_move_arr_eq(_whiteQueen.get_possible_moves(), moves), "Queen Can Move Forward");
+	
+	func test_full_move_range():
+		Chessboard.SetPiece(Vector2(3, 1));
+		_whiteQueen.get_possible_moves()[2].execute.call();
+		var moves : Array[Chessboard.Move] = [];
+		moves.append_array(move_in_dir(Vector2(3, 3), Vector2(0, -1), [1, 2, 3]));
+		
+		moves.append(Chessboard.Move.new(Chessboard.Move.Type.MOVE, Vector2(2, 2)));
+		
+		moves.append_array(move_in_dir(Vector2(3, 3), Vector2(-1, 0), [1, 2, 3]));
+		
+		moves.append_array(move_in_dir(Vector2(3, 3), Vector2(-1, 1), [1, 2]));
+		moves.append(Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(0, 6)));
+		
+		moves.append_array(move_in_dir(Vector2(3, 3), Vector2(0, 1), [1, 2]));
+		moves.append(Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(3, 6)));
+		
+		moves.append_array(move_in_dir(Vector2(3, 3), Vector2(1, 1), [1, 2]));
+		moves.append(Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(6, 6)));
+		
+		moves.append_array(move_in_dir(Vector2(3, 3), Vector2(1, 0), [1, 2, 3, 4]));
+		
+		moves.append(Chessboard.Move.new(Chessboard.Move.Type.MOVE, Vector2(4, 2)));
+		
+		assert_true(PieceLogicTest.assert_move_arr_eq(_whiteQueen.get_possible_moves(), moves), "White Queen Full Move");
+
+class TestKing:
+	extends GutTest;
+	
+	

@@ -130,10 +130,22 @@ class Bishop extends Chessboard.Piece:
 		moves.append_array(self.raycast(Vector2(1, -1)));
 		return moves;
 
-class King extends Chessboard.Piece:
-	func _init(side: Chessboard.Piece.Side, position: Vector2):
-		super(Chessboard.Piece.Type.KING, side, position);
-	
 class Queen extends Chessboard.Piece:
 	func _init(side: Chessboard.Piece.Side, position: Vector2):
 		super(Chessboard.Piece.Type.QUEEN, side, position);
+	
+	func get_possible_moves() -> Array[Chessboard.Move]:
+		var moves : Array[Chessboard.Move] = [];
+		moves.append_array(self.raycast(Vector2(0, -1)));
+		moves.append_array(self.raycast(Vector2(-1, -1)));
+		moves.append_array(self.raycast(Vector2(-1, 0)));
+		moves.append_array(self.raycast(Vector2(-1, 1)));
+		moves.append_array(self.raycast(Vector2(0, 1)));
+		moves.append_array(self.raycast(Vector2(1, 1)));
+		moves.append_array(self.raycast(Vector2(1, 0)));
+		moves.append_array(self.raycast(Vector2(1, -1)));
+		return moves;
+
+class King extends Chessboard.Piece:
+	func _init(side: Chessboard.Piece.Side, position: Vector2):
+		super(Chessboard.Piece.Type.KING, side, position);
