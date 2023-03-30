@@ -18,8 +18,8 @@ static func update_game_board(moved_piece: Chessboard.Piece):
 					game_state.type = Chessboard.GameState.Type.CHECK;
 	return game_state;
 
-static func update_piece_threatened_squares(piece : Chessboard.Piece):
-	var threatened_arr = Chessboard.threatened_squares[piece.side];
+static func update_piece_threatened_squares(piece : Chessboard.Piece) -> Chessboard.Piece:
+	var threatened_arr : Array = Chessboard.threatened_squares[piece.side];
 	var moves = [];
 	if piece.type == Chessboard.Piece.Type.PAWN:
 		moves = piece.get_pawn_threatened_squares();
@@ -28,7 +28,7 @@ static func update_piece_threatened_squares(piece : Chessboard.Piece):
 	
 	var check = null;
 	for move in moves:
-		if !threatened_arr.has(move.position):
+		if !contains_pos(threatened_arr, move.position):
 			threatened_arr.append(move.position);
 			var threatened_piece = Chessboard.GetPiece(move.position);
 			if threatened_piece != null && threatened_piece.side != piece.side && threatened_piece is King:
@@ -37,6 +37,12 @@ static func update_piece_threatened_squares(piece : Chessboard.Piece):
 
 static func within_bounds(pos: Vector2):
 	return pos.x >= 0 && pos.x <= 7 && pos.y >= 0 && pos.y <= 7;
+
+static func contains_pos(arr : Array, pos: Vector2) -> bool:
+	for p in arr:
+		if p.x == pos.x && p.y == pos.y:
+			return true;
+	return false;
 
 class Pawn extends Chessboard.Piece:
 	enum MoveState {START, MOVED_TWO, PLAY};
@@ -193,8 +199,14 @@ class Queen extends Chessboard.Piece:
 		return moves;
 
 class King extends Chessboard.Piece:
+	enum MoveState {START, PLAY};
+	var move_state = MoveState.START;
 	func _init(side: Chessboard.Piece.Side, position: Vector2):
 		super(Chessboard.Piece.Type.KING, side, position);
+	
+	func king_move(pos: Vector2) -> Chessboard.GameState:
+		self.move_state = MoveState.PLAY;
+		return self.basic_move(pos);
 	
 	func get_king_move(offset : Vector2) -> Chessboard.Move:
 		var new_pos = self.position + offset;
@@ -202,13 +214,32 @@ class King extends Chessboard.Piece:
 			var piece = Chessboard.GetPiece(new_pos);
 			if piece != null && piece.side != self.side:
 				var move = Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, new_pos);
-				move.execute = self.basic_move.bind(new_pos);
+				move.execute = self.king_move.bind(new_pos);
 				return move;
-			elif piece == null && !Chessboard.threatened_squares[abs(1 - self.side)].has(new_pos):
+			elif piece == null && !self.get_in_check(new_pos):
 				var move = Chessboard.Move.new(Chessboard.Move.Type.MOVE, new_pos);
-				move.execute = self.basic_move.bind(new_pos);
+				move.execute = self.king_move.bind(new_pos);
 				return move;
 		return null;
+	
+	func get_possible_castle(rook : Vector2) -> Chessboard.Move:
+		var rook_piece = Chessboard.GetPiece(rook);
+		if rook_piece != null && rook_piece is Rook && rook_piece.castle_state == Rook.CastleState.START:
+			var dir = rook - self.position;
+			var unit = dir / dir.length();
+			
+			for i in range(self.position.x + unit.x, rook.x, unit.x):
+				if Chessboard.GetPiece(Vector2(i, self.position.y)) != null:
+					return null;
+			
+			var offset = self.position + 2 * unit;
+			var move = Chessboard.Move.new(Chessboard.Move.Type.CASTLE, offset);
+			move.execute = self.king_move.bind(offset);
+			return move;
+		return null;
+	
+	func get_in_check(pos: Vector2 = self.position) -> bool:
+		return Logic.contains_pos(Chessboard.threatened_squares[abs(1 - self.side)], pos);
 	
 	func get_possible_moves() -> Array[Chessboard.Move]:
 		var moves : Array[Chessboard.Move] = [];
@@ -219,6 +250,15 @@ class King extends Chessboard.Piece:
 				var possible = get_king_move(Vector2(i, j));
 				if possible != null:
 					moves.append(possible);
-		# Castling:
 		
+		# Castling:
+		if self.move_state == MoveState.START && !self.get_in_check():
+			var queenside = self.get_possible_castle(Vector2(0, self.position.y));
+			if queenside != null:
+				moves.append(queenside);
+			
+			var kingside = self.get_possible_castle(Vector2(7, self.position.y));
+			if kingside != null:
+				moves.append(kingside);
+			
 		return moves;

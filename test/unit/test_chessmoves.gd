@@ -3,7 +3,7 @@ class_name PieceLogicTest;
 
 static func assert_move_eq(move1 : Chessboard.Move, move2: Chessboard.Move) -> bool:
 	if move1.type != move2.type:
-		print(str(move2.type) + " type != " + str(move2.type));
+		print(str(move1.type) + " type != " + str(move2.type));
 		return false;
 	if move1.position != move2.position:
 		print(str(move1.position) + " position != " + str(move2.position));
