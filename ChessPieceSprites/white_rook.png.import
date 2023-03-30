@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dwocmbdbtxxkh"
-path="res://.godot/imported/pawn.png-1c2a6fe69885eab653bbdf6934333357.ctex"
+uid="uid://da1856pqmhcft"
+path="res://.godot/imported/white_rook.png-43e49c92153fc6d6eb9167c575b83fa4.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://ChessPieceSprites/pawn.png"
-dest_files=["res://.godot/imported/pawn.png-1c2a6fe69885eab653bbdf6934333357.ctex"]
+source_file="res://ChessPieceSprites/white_rook.png"
+dest_files=["res://.godot/imported/white_rook.png-43e49c92153fc6d6eb9167c575b83fa4.ctex"]
 
 [params]
 
