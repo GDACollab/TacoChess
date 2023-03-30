@@ -20,7 +20,7 @@ class GameState:
 
 # Given by get_possible_moves:
 class Move:
-	enum Type {MOVE, CAPTURE, CASTLE, PROMOTION}
+	enum Type {MOVE, CAPTURE, PROTECT, CASTLE, PROMOTION}
 	var type : Chessboard.Move.Type;
 	var position : Vector2;
 	func _init(_type: Chessboard.Move.Type, _position: Vector2):
@@ -39,8 +39,12 @@ class Piece:
 		type = _type;
 		side = _side;
 		position = _pos;
-	func get_possible_moves() -> Array[Chessboard.Move]:
+	
+	func move_evaluation() -> Array[Chessboard.Move]:
 		return [];
+	
+	func get_possible_moves() -> Array[Chessboard.Move]:
+		return Chessboard.logic.get_legal_moves(self, self.move_evaluation());
 	
 	func basic_move(pos: Vector2) -> Chessboard.GameState:
 		Chessboard.MovePiece(self.position, pos);
@@ -69,6 +73,9 @@ class Piece:
 				if piece.side != self.side:
 					var move = Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, new_pos);
 					move.execute = execute.bind(new_pos);
+					moves.append(move);
+				else:
+					var move = Chessboard.Move.new(Chessboard.Move.Type.PROTECT, new_pos);
 					moves.append(move);
 				break;
 		return moves;

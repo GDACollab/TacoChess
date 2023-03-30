@@ -28,7 +28,7 @@ func test_can_castle():
 	assert_true(PieceLogicTest.assert_move_arr_eq(_whiteKing.get_possible_moves(), [get_move(Vector2(3, 0)), get_move(Vector2(5, 0)), get_move(Vector2(2, 0), Chessboard.Move.Type.CASTLE), get_move(Vector2(6, 0), Chessboard.Move.Type.CASTLE)]));
 
 func test_cant_castle_after_rook_move():
-	_whiteQueensideRook.get_possible_moves()[0].execute.call();
+	_whiteQueensideRook.get_possible_moves()[1].execute.call();
 	assert_true(PieceLogicTest.assert_move_arr_eq(_whiteKing.get_possible_moves(), [get_move(Vector2(3, 0)), get_move(Vector2(5, 0)), get_move(Vector2(6, 0), Chessboard.Move.Type.CASTLE)]));
 
 func test_cant_castle_with_pieces_between():

@@ -35,3 +35,17 @@ func test_legal_check_limits_moves_pawn():
 	set_piece(Logic.Rook, Vector2(3, 2));
 	set_piece(Logic.Pawn, Vector2(4, 1), Chessboard.Piece.Side.WHITE);
 	assert_eq(Chessboard.GetPiece(Vector2(4, 1)).get_possible_moves(), []);
+
+func test_king_can_end_check_by_capturing():
+	set_piece(Logic.Queen, Vector2(4, 1));
+	assert_true(PieceLogicTest.assert_move_arr_eq(Chessboard.GetPiece(Vector2(4, 0)).get_possible_moves(), [Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(4, 1))]), "White King Can Capture Queen");
+
+func test_king_starts_check_by_capturing():
+	set_piece(Logic.Queen, Vector2(4, 1));
+	set_piece(Logic.Rook, Vector2(3, 1));
+	assert_true(PieceLogicTest.assert_move_arr_eq(Chessboard.GetPiece(Vector2(4, 0)).get_possible_moves(), [Chessboard.Move.new(Chessboard.Move.Type.MOVE, Vector2(3, 0)), Chessboard.Move.new(Chessboard.Move.Type.MOVE, Vector2(5, 0))]), "White King Does Not End Check By Capturing Queen");
+
+func test_multiple_possible_checks():
+	set_piece(Logic.Queen);
+	set_piece(Logic.Bishop, Vector2(3, 2));
+	set_piece(Logic.Queen, Vector2(4, 1), Chessboard.Piece.Side.WHITE);

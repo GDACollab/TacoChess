@@ -12,7 +12,7 @@ static func assert_move_eq(move1 : Chessboard.Move, move2: Chessboard.Move) -> b
 
 static func assert_move_arr_eq(arr1 : Array[Chessboard.Move], arr2 : Array[Chessboard.Move]) -> bool:
 	if len(arr1) != len(arr2):
-		print("Not equal length");
+		print("Length " + str(len(arr1))  + " != " + str(len(arr2)));
 		return false;
 	for i in range(len(arr1)):
 		if !(assert_move_eq(arr1[i], arr2[i])):
@@ -92,7 +92,15 @@ class TestPawn:
 	
 	func test_threatened():
 		assert_true(PieceLogicTest.assert_move_arr_eq(_whitePawn.get_pawn_threatened_squares(), [Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(1, 2))]), "White Pawn Threatened Squares");
-		assert_true(PieceLogicTest.assert_move_arr_eq(_blackPawn.get_pawn_threatened_squares(), [Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(2, 5)), Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(0, 5))]), "Black Pawn Threatened Squares");
+		assert_true(PieceLogicTest.assert_move_arr_eq(_blackPawn.get_pawn_threatened_squares(), [Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(2, 5)), 
+		Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(0, 5))]), "Black Pawn Threatened Squares");
+	
+	func test_cannot_move_twice_blocked():
+		var _leftBlackPawn = Chessboard.GetPiece(Vector2(0, 6));
+		while (_leftBlackPawn.position.y > 2):
+			_leftBlackPawn.get_possible_moves()[0].execute.call();
+		
+		assert_eq(_whitePawn.get_possible_moves(), []);
 
 class TestRook:
 	extends GutTest;
@@ -108,7 +116,7 @@ class TestRook:
 	
 	func test_rook_trapped():
 		Chessboard.SetPiece(Vector2(0, 1), Logic.Pawn.new(Chessboard.Piece.Side.WHITE, Vector2(1, 0)));
-		assert_eq(_whiteRook.get_possible_moves(), []);
+		assert_true(PieceLogicTest.assert_move_arr_eq(_whiteRook.get_possible_moves(), [Chessboard.Move.new(Chessboard.Move.Type.PROTECT, Vector2(0, 1)), Chessboard.Move.new(Chessboard.Move.Type.PROTECT, Vector2(1, 0))]), "White Rook Trapped");
 	
 	func move_in_dir(pos: Vector2, vector: Vector2, squares: Array[int]) -> Array[Chessboard.Move]:
 		var moves : Array[Chessboard.Move] = [];
@@ -119,6 +127,7 @@ class TestRook:
 	func test_rook_move_up_and_capture():
 		var moves = move_in_dir(Vector2(0, 0), Vector2(0, 1), [1, 2, 3, 4, 5]);
 		moves.append(Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(0, 6)));
+		moves.append(Chessboard.Move.new(Chessboard.Move.Type.PROTECT, Vector2(1, 0)));
 		assert_true(PieceLogicTest.assert_move_arr_eq(_whiteRook.get_possible_moves(), moves), "Rook Move Up And Capture");
 	
 	func test_four_way_movement():
@@ -127,6 +136,7 @@ class TestRook:
 		var moves = move_in_dir(Vector2(1, 0), Vector2(0, 1), [4, 5]);
 		moves.append(Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(1, 6)));
 		moves.append(Chessboard.Move.new(Chessboard.Move.Type.MOVE, Vector2(1, 2)));
+		moves.append(Chessboard.Move.new(Chessboard.Move.Type.PROTECT, Vector2(1, 1)));
 		moves.append_array(move_in_dir(Vector2(0, 3), Vector2(1, 0), [2, 3, 4, 5, 6, 7, 0]));
 		var pos = _whiteRook.get_possible_moves();
 		assert_true(PieceLogicTest.assert_move_arr_eq(_whiteRook.get_possible_moves(), moves), "Rook Four Way");
@@ -146,14 +156,14 @@ class TestKnight:
 		assert_true(_whiteKnight is Logic.Knight);
 	
 	func test_hop_over():
-		var moves : Array[Chessboard.Move] = [get_move(Vector2(0, 2)), get_move(Vector2(2, 2))];
+		var moves : Array[Chessboard.Move] = [get_move(Vector2(0, 2)), get_move(Vector2(2, 2)), get_move(Vector2(3, 1), Chessboard.Move.Type.PROTECT)];
 		assert_true(PieceLogicTest.assert_move_arr_eq(_whiteKnight.get_possible_moves(), moves), "Knight Start");
 	
 	func test_full_diag():
 		_whiteKnight.get_possible_moves()[1].execute.call();
-		var moves : Array[Chessboard.Move] = [get_move(Vector2(0, 3)), get_move(Vector2(1, 0)), get_move(Vector2(1, 4)), get_move(Vector2(3, 4)), get_move(Vector2(4, 3))];
+		var moves : Array[Chessboard.Move] = [get_move(Vector2(0, 1), Chessboard.Move.Type.PROTECT), get_move(Vector2(0, 3)), get_move(Vector2(1, 0)), get_move(Vector2(1, 4)), get_move(Vector2(3, 4)), get_move(Vector2(3, 0), Chessboard.Move.Type.PROTECT), get_move(Vector2(4, 3)),get_move(Vector2(4, 1), Chessboard.Move.Type.PROTECT)];
 		assert_true(PieceLogicTest.assert_move_arr_eq(_whiteKnight.get_possible_moves(), moves), "Knight Move 1");
-		_whiteKnight.get_possible_moves()[3].execute.call();
+		_whiteKnight.get_possible_moves()[4].execute.call();
 		moves = [get_move(Vector2(1, 3)), get_move(Vector2(1, 5)), get_move(Vector2(2, 2)), get_move(Vector2(2, 6), Chessboard.Move.Type.CAPTURE), get_move(Vector2(4, 6), Chessboard.Move.Type.CAPTURE), get_move(Vector2(4, 2)), get_move(Vector2(5, 5)), get_move(Vector2(5, 3))];
 		assert_true(PieceLogicTest.assert_move_arr_eq(_whiteKnight.get_possible_moves(), moves), "Knight Move 2");
 
@@ -173,8 +183,8 @@ class TestBishop:
 		assert_true(_blackBishop is Logic.Bishop);
 	
 	func test_is_trapped():
-		assert_eq(_whiteBishop.get_possible_moves(), []);
-		assert_eq(_blackBishop.get_possible_moves(), []);
+		assert_true(PieceLogicTest.assert_move_arr_eq(_whiteBishop.get_possible_moves(), [Chessboard.Move.new(Chessboard.Move.Type.PROTECT, Vector2(1, 1)), Chessboard.Move.new(Chessboard.Move.Type.PROTECT, Vector2(3, 1))]), "White Bishop Trapped");
+		assert_true(PieceLogicTest.assert_move_arr_eq(_blackBishop.get_possible_moves(), [Chessboard.Move.new(Chessboard.Move.Type.PROTECT, Vector2(4, 6)), Chessboard.Move.new(Chessboard.Move.Type.PROTECT, Vector2(6, 6))]), "Black Bishop Trapped");
 	
 	func get_move(pos: Vector2, type: Chessboard.Move.Type = Chessboard.Move.Type.MOVE) -> Chessboard.Move:
 		return Chessboard.Move.new(type, pos);
@@ -203,7 +213,7 @@ class TestQueen:
 		
 	
 	func test_is_trapped():
-		assert_eq(_whiteQueen.get_possible_moves(), []);
+		assert_true(PieceLogicTest.assert_move_arr_eq(_whiteQueen.get_possible_moves(), [Chessboard.Move.new(Chessboard.Move.Type.PROTECT, Vector2(2, 0)), Chessboard.Move.new(Chessboard.Move.Type.PROTECT, Vector2(2, 1)), Chessboard.Move.new(Chessboard.Move.Type.PROTECT, Vector2(3, 1)), Chessboard.Move.new(Chessboard.Move.Type.PROTECT, Vector2(4, 1)), Chessboard.Move.new(Chessboard.Move.Type.PROTECT, Vector2(4, 0))]), "White Queen Trapped");
 	
 	func move_in_dir(pos: Vector2, vector: Vector2, squares: Array[int]) -> Array[Chessboard.Move]:
 		var moves : Array[Chessboard.Move] = [];
@@ -213,18 +223,20 @@ class TestQueen:
 	
 	func test_move_forward_only():
 		Chessboard.SetPiece(Vector2(3, 1));
-		var moves : Array[Chessboard.Move] = [];
+		var moves : Array[Chessboard.Move] = [Chessboard.Move.new(Chessboard.Move.Type.PROTECT, Vector2(2, 0)), Chessboard.Move.new(Chessboard.Move.Type.PROTECT, Vector2(2, 1))];
 		moves.append_array(move_in_dir(Vector2(3, 0), Vector2(0, 1), [1, 2, 3, 4, 5]));
 		moves.append(Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, Vector2(3, 6)));
+		moves.append_array([Chessboard.Move.new(Chessboard.Move.Type.PROTECT, Vector2(4, 1)), Chessboard.Move.new(Chessboard.Move.Type.PROTECT, Vector2(4, 0))]);
 		assert_true(PieceLogicTest.assert_move_arr_eq(_whiteQueen.get_possible_moves(), moves), "Queen Can Move Forward");
 	
 	func test_full_move_range():
 		Chessboard.SetPiece(Vector2(3, 1));
-		_whiteQueen.get_possible_moves()[2].execute.call();
+		_whiteQueen.get_possible_moves()[4].execute.call();
 		var moves : Array[Chessboard.Move] = [];
 		moves.append_array(move_in_dir(Vector2(3, 3), Vector2(0, -1), [1, 2, 3]));
 		
 		moves.append(Chessboard.Move.new(Chessboard.Move.Type.MOVE, Vector2(2, 2)));
+		moves.append(Chessboard.Move.new(Chessboard.Move.Type.PROTECT, Vector2(1, 1)));
 		
 		moves.append_array(move_in_dir(Vector2(3, 3), Vector2(-1, 0), [1, 2, 3]));
 		
@@ -240,6 +252,7 @@ class TestQueen:
 		moves.append_array(move_in_dir(Vector2(3, 3), Vector2(1, 0), [1, 2, 3, 4]));
 		
 		moves.append(Chessboard.Move.new(Chessboard.Move.Type.MOVE, Vector2(4, 2)));
+		moves.append(Chessboard.Move.new(Chessboard.Move.Type.PROTECT, Vector2(5, 1)));
 		
 		assert_true(PieceLogicTest.assert_move_arr_eq(_whiteQueen.get_possible_moves(), moves), "White Queen Full Move");
 
