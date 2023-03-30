@@ -98,18 +98,20 @@ func _input(event):
 					clickedValidPiece = true;
 					selectedPiece = ps;
 					highlight.append_array(ps.piece.get_possible_moves());
+			if not clickedValidPiece:
+				selectedPiece = null;
+				highlight.clear();
 		else:
 			for move in highlight:
-				var movePos = Vector2(move.position.x * sWidth + bXOffset, move.position.y * sWidth + bXOffset);
-				var mvLH = movePos.x;
-				var mvHH = movePos + sWidth;
-				var mvLV = movePos.y;
-				var mvHV = movePos + sWidth;
+				var mvLH = (move.position.x * sWidth) + bXOffset;
+				var mvHH = mvLH + sWidth;
+				var mvLV = (move.position.y * sWidth) + bYOffset;
+				var mvHV = mvLV + sWidth;
 				if mousePos.x < mvHH and mousePos.y < mvHV and mousePos.x > mvLH and mousePos.y > mvLV:
-					var gameState = move.execute();
+					var gameState = move.execute.call();
 					clickedValidPiece = true;
 					print_debug(gameState);
-		if not clickedValidPiece:
+					Chessboard.DebugPrintBoard();
 			selectedPiece = null;
 			highlight.clear();
 		queue_redraw();
@@ -118,13 +120,18 @@ func _draw():
 	if viewSize != get_viewport().size:
 		viewSize = get_viewport().size
 		ScaleScreen();
+	for p in pieces:
+		p.sprite.position = Vector2(p.piece.position.x*sWidth, p.piece.position.y*sWidth);
+		if p.piece not in Chessboard._board:
+			remove_child(p.sprite);
+			pieces.erase(p);
 	if selectedPiece != null:
 		# draw_rect(selectedPiece.sprite.get_rect(), Color(Color.YELLOW, .5), true);
 		var selectedHighlight = Rect2(selectedPiece.sprite.position.x, selectedPiece.sprite.position.y, sWidth, sWidth);
 		draw_rect(selectedHighlight, Color(Color.BLUE, .5), true);
 	for m in highlight:
-		var posX = m.position.x * sWidth + bXOffset;
-		var posY = m.position.y * sWidth + bYOffset;
+		var posX = (m.position.x* sWidth);
+		var posY = (m.position.y * sWidth);
 		draw_rect(Rect2(posX, posY, sWidth, sWidth), Color(Color.WEB_PURPLE, .5), true);
 
 func ScaleScreen():
