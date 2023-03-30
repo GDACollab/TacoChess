@@ -1,9 +1,13 @@
 extends Node
+# If for whatever reason this is revisited, I would encourage you to go to: https://www.chessprogramming.org
+# Which has a lot more information that I did not use when making this. It's a lot more interesting and focused on more efficient programming.
+# Bitboard representation seems really cool.
 
 # Because class_name doesn't work for singletons:
 var logic = preload("res://chesslogic.gd");
 # Two arrays, one represents the squares threatened by side 0 and 1 respectively (WHITE and BLACK).
 var threatened_squares = [[], []];
+var current_game_state : GameState = GameState.new();
 
 class GameState:
 	# Play means continue as normal, Draw means both sides have lost, Check means a side is in danger of losing, Checkmate means a side has lost.
@@ -11,7 +15,7 @@ class GameState:
 	var type : Chessboard.GameState.Type = Type.PLAY;
 	# null if there's currently no piece in check.
 	# If the type is CHECKMATE, then this side has lost:
-	var inCheck : Chessboard.Piece;
+	var in_check : Chessboard.Piece;
 
 
 # Given by get_possible_moves:

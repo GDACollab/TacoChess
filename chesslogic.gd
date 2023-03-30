@@ -14,8 +14,11 @@ static func update_game_board(moved_piece: Chessboard.Piece):
 						piece.pawn_move_state = Pawn.MoveState.PLAY;
 				var possible_check = update_piece_threatened_squares(piece);
 				if possible_check != null:
-					game_state.inCheck = possible_check;
+					game_state.in_check = possible_check;
 					game_state.type = Chessboard.GameState.Type.CHECK;
+	if len(game_state.in_check.get_possible_moves()) == 0:
+		game_state.type = Chessboard.GameState.Type.CHECKMATE;
+	Chessboard.current_game_state = game_state;
 	return game_state;
 
 static func update_piece_threatened_squares(piece : Chessboard.Piece) -> Chessboard.Piece:
