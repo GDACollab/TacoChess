@@ -14,10 +14,10 @@ const w_bishop_sprite = preload("res://ChessPieceSprites/white_bishop.png");
 const w_queen_sprite = preload("res://ChessPieceSprites/white_queen.png");
 const w_king_sprite = preload("res://ChessPieceSprites/white_king.png");
 
-var bXOffset = 100;
-var bYOffset = 100;
-var sWidth = 120;
-var spriteScale = .12;
+var bXOffset;
+var bYOffset;
+var sWidth;
+var spriteScale;
 
 var viewSize;
 
@@ -110,8 +110,6 @@ func _input(event):
 				if mousePos.x < mvHH and mousePos.y < mvHV and mousePos.x > mvLH and mousePos.y > mvLV:
 					var gameState = move.execute.call();
 					clickedValidPiece = true;
-					print_debug(gameState);
-					Chessboard.DebugPrintBoard();
 			selectedPiece = null;
 			highlight.clear();
 		queue_redraw();
