@@ -14,8 +14,6 @@ const w_bishop_sprite = preload("res://ChessPieceSprites/white_bishop.png");
 const w_queen_sprite = preload("res://ChessPieceSprites/white_queen.png");
 const w_king_sprite = preload("res://ChessPieceSprites/white_king.png");
 
-# TODO automatically offset, scale, and width, based on screen size
-# TODO restrict which chess piece can be selected / moved based on turn (or don't if it's funny)
 var bXOffset = 100;
 var bYOffset = 100;
 var sWidth = 120;
@@ -33,10 +31,10 @@ class PieceSprite:
 
 func _ready():
 	viewSize = get_viewport().size;
-	scale_screen();
-	_build_board();
+	ScaleScreen();
+	BuildBoard();
 
-func _build_board():
+func BuildBoard():
 	pieces.clear();
 	for p in Chessboard._board:
 		if p != null:
@@ -117,6 +115,9 @@ func _input(event):
 		queue_redraw();
 
 func _draw():
+	if viewSize != get_viewport().size:
+		viewSize = get_viewport().size
+		ScaleScreen();
 	if selectedPiece != null:
 		# draw_rect(selectedPiece.sprite.get_rect(), Color(Color.YELLOW, .5), true);
 		var selectedHighlight = Rect2(selectedPiece.sprite.position.x, selectedPiece.sprite.position.y, sWidth, sWidth);
@@ -126,13 +127,12 @@ func _draw():
 		var posY = m.position.y * sWidth + bYOffset;
 		draw_rect(Rect2(posX, posY, sWidth, sWidth), Color(Color.WEB_PURPLE, .5), true);
 
-func scale_screen():
-	var viewSize = get_viewport().size;
+func ScaleScreen():
 	sWidth = min(viewSize.x / 8, viewSize.y / 8);
 	bXOffset = (viewSize.x - sWidth * 8) / 2;
 	bYOffset = (viewSize.y - sWidth * 8) / 2;
 	spriteScale = sWidth / 1000.;
 	position = Vector2(bXOffset, bYOffset);
-	#	for p in pieces:
-	#		p.sprite.position = Vector2(p.position.x*sWidth, p.position.y*sWidth);
-	#		p.sprite.scale = sWidth;
+	for p in pieces:
+		p.sprite.position = Vector2(p.piece.position.x*sWidth, p.piece.position.y*sWidth);
+		p.sprite.scale = Vector2(spriteScale, spriteScale);
