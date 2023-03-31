@@ -4,6 +4,7 @@ static func update_game_board(moved_piece: Chessboard.Piece):
 	# Moving one piece affects a whole bunch of what squares are or aren't threatened:
 	Chessboard.threatened_squares = [[], []];
 	
+	var piece_valid_moves = [0, 0];
 	var game_state = Chessboard.GameState.new();
 	for i in range(8):
 		for j in range(8):
@@ -258,13 +259,13 @@ class King extends Chessboard.Piece:
 	
 	func get_king_move(offset : Vector2) -> Chessboard.Move:
 		var new_pos = self.position + offset;
-		if Logic.within_bounds(new_pos):
+		if Logic.within_bounds(new_pos) && !self.get_in_check(new_pos):
 			var piece = Chessboard.GetPiece(new_pos);
 			if piece != null && piece.side != self.side:
 				var move = Chessboard.Move.new(Chessboard.Move.Type.CAPTURE, new_pos);
 				move.execute = self.king_move.bind(new_pos);
 				return move;
-			elif piece == null && !self.get_in_check(new_pos):
+			elif piece == null:
 				var move = Chessboard.Move.new(Chessboard.Move.Type.MOVE, new_pos);
 				move.execute = self.king_move.bind(new_pos);
 				return move;
@@ -287,7 +288,6 @@ class King extends Chessboard.Piece:
 		return null;
 	
 	func get_in_check(pos: Vector2 = self.position) -> bool:
-		var z = Logic.contains_pos(Chessboard.threatened_squares[abs(1 - self.side)], pos).size();
 		return Logic.contains_pos(Chessboard.threatened_squares[abs(1 - self.side)], pos).size() > 0;
 	
 	func move_evaluation() -> Array[Chessboard.Move]:
