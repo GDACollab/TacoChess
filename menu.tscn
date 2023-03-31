@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://dp2wotm1s1f0c"]
+[gd_scene load_steps=4 format=3 uid="uid://dp2wotm1s1f0c"]
 
 [ext_resource type="Texture2D" uid="uid://ckbkkv1x3xywj" path="res://titleBackdrop.png" id="1_8m242"]
+[ext_resource type="Script" path="res://StartGameButton.gd" id="2_u4gnm"]
+[ext_resource type="Script" path="res://EndGameButton.gd" id="3_fnj68"]
 
 [node name="menu" type="Node2D"]
 
@@ -15,6 +17,7 @@ offset_top = 97.0
 offset_right = 1066.0
 offset_bottom = 128.0
 text = "START GAME"
+script = ExtResource("2_u4gnm")
 
 [node name="EndGameButton" type="Button" parent="."]
 offset_left = 960.0
@@ -22,3 +25,7 @@ offset_top = 155.0
 offset_right = 1066.0
 offset_bottom = 186.0
 text = "END GAME"
+script = ExtResource("3_fnj68")
+
+[connection signal="pressed" from="StartGameButton" to="StartGameButton" method="_on_PlayGameButton_pressed"]
+[connection signal="pressed" from="EndGameButton" to="EndGameButton" method="_endGameButton_pressed"]
