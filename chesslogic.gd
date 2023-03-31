@@ -4,7 +4,6 @@ static func update_game_board(moved_piece: Chessboard.Piece):
 	# Moving one piece affects a whole bunch of what squares are or aren't threatened:
 	Chessboard.threatened_squares = [[], []];
 	
-	var piece_valid_moves = [0, 0];
 	var game_state = Chessboard.GameState.new();
 	for i in range(8):
 		for j in range(8):
@@ -17,8 +16,19 @@ static func update_game_board(moved_piece: Chessboard.Piece):
 				if possible_check != null:
 					game_state.in_check = possible_check;
 					game_state.type = Chessboard.GameState.Type.CHECK;
+	
+	# Now all the threatened squares are updated, check if we're in a drawn position:
+	var piece_valid_moves = [0, 0];
+	for i in range(8):
+		for j in range(8):
+			var piece = Chessboard.GetPiece(Vector2(i, j));
+			if piece != null && piece_valid_moves[piece.side] == 0:
+				piece_valid_moves[piece.side] += len(piece.get_possible_moves());
+	
 	if game_state.in_check != null && len(game_state.in_check.get_possible_moves()) == 0:
 		game_state.type = Chessboard.GameState.Type.CHECKMATE;
+	elif piece_valid_moves[0] == 0 || piece_valid_moves[1] == 0:
+		game_state.type = Chessboard.GameState.Type.DRAW;
 	Chessboard.current_game_state = game_state;
 	return game_state;
 
