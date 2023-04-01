@@ -3,3 +3,4 @@
 
 # Godot Unit Testing (install from AssetLib instead)
 addons/gut/*
+exports/*
