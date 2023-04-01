@@ -33,6 +33,7 @@ var selectedPiece;
 
 var boardImage;
 var boardRect;
+var turn = 0;
 
 class PieceSprite:
 	var piece = Chessboard.Piece;
@@ -135,7 +136,7 @@ func _input(event):
 				else:
 					psLV = psS.global_position.y;
 				var psHV = psLV + sWidth;
-				if mousePos.x < psHH and mousePos.y < psHV and mousePos.x > psLH and mousePos.y > psLV:
+				if mousePos.x < psHH and mousePos.y < psHV and mousePos.x > psLH and mousePos.y > psLV and ps.piece.side == turn:
 					clickedValidPiece = true;
 					selectedPiece = ps;
 					var to_load = [select_1, select_2];
@@ -162,6 +163,7 @@ func _input(event):
 					if move.type != Chessboard.Move.Type.PROTECT:
 						piece_in_check = null;
 						var gameState = move.execute.call();
+						turn = (turn + 1) % 2;
 						clickedValidPiece = true;
 						if gameState.type == Chessboard.GameState.Type.PLAY:
 							match move.type:
@@ -219,7 +221,7 @@ func _draw():
 			selectedHighlight = Rect2(selectedPiece.sprite.position.x, selectedPiece.sprite.position.y, sWidth, sWidth);
 		draw_rect(selectedHighlight, Color(Color.BLUE, .5), true);
 	if piece_in_check != null:
-		var check_highlight = Rect2(piece_in_check.position.x * sWidth, piece_in_check.position.y * sWidth, sWidth, sWidth);
+		var check_highlight = Rect2(piece_in_check.position.x * sWidth, (7 - piece_in_check.position.y) * sWidth, sWidth, sWidth);
 		draw_rect(check_highlight, Color(Color.RED, .5), true);
 	for m in highlight:
 		var posX = (m.position.x* sWidth);
