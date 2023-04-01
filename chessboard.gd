@@ -4,6 +4,7 @@ extends Node
 # Bitboard representation seems really cool.
 
 var volume = 0.0;
+var raw_volume = 50;
 
 # Because class_name doesn't work for singletons:
 var logic = preload("res://chesslogic.gd");
