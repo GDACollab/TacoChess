@@ -11,4 +11,3 @@ func _input(event):
 	Chessboard.volume = formula;
 	var player : AudioStreamPlayer2D = get_node("/root/menu/AudioStreamPlayer2D");
 	player.volume_db = formula;
-	print(self.value);

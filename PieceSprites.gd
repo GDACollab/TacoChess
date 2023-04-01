@@ -24,8 +24,6 @@ var spriteScale;
 var royalScaleX;
 var royalScaleY;
 
-var viewSize;
-
 var pieces := [];
 var highlight := [];
 var piece_in_check = null;
@@ -59,7 +57,6 @@ func _ready():
 	select_2.volume_db = Chessboard.volume;
 	get_node("/root/game/Ambience").volume_db = 10 + Chessboard.volume;
 	get_node("/root/game/Music").volume_db = Chessboard.volume - 2;
-	viewSize = get_viewport().size;
 	ScaleScreen();
 	BuildBoard();
 
@@ -217,9 +214,6 @@ func _input(event):
 
 func _draw():
 	draw_texture_rect(boardImage, boardRect, false, Color(1, 1, 1, 1), false);
-	if viewSize != get_viewport().size:
-		viewSize = get_viewport().size
-		ScaleScreen();
 	for p in pieces:
 		assignSpritePosition(p);
 		if p.piece not in Chessboard._board:
@@ -241,13 +235,14 @@ func _draw():
 		draw_rect(Rect2(posX, posY, sWidth, sWidth), Color(Color.WEB_PURPLE, .5), true);
 
 func ScaleScreen():
+	var viewSize = Vector2(1920, 1080);
 	sWidth = min(viewSize.x / 8, viewSize.y / 9);
 	bXOffset = (viewSize.x - sWidth * 8) / 2;
 	bYOffset = max((viewSize.y - sWidth * 8) / 2, sWidth/2);
 	spriteScale = sWidth / 1080.;
 	royalScaleX = sWidth / 1080.;
 	royalScaleY = sWidth / 1640.;
-	position = Vector2(bXOffset, bYOffset);
+	global_position = Vector2(bXOffset, bYOffset);
 	boardRect = Rect2(0, 0, sWidth * 8, sWidth * 8);
 	for p in pieces:
 		assignSpritePosition(p);
