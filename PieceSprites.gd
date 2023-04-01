@@ -166,8 +166,10 @@ func _input(event):
 								if gameState.in_check.side == Chessboard.Piece.Side.WHITE:
 									side = "Black";
 								label.text = side + " wins.";
+								piece_in_check = gameState.in_check;
 							else:
 								label.text = "Draw";
+							queue_redraw();
 							await get_tree().create_timer(1.0).timeout;
 							Chessboard.ClearBoard();
 							get_tree().change_scene_to_file("res://menu.tscn");

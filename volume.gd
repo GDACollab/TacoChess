@@ -1,6 +1,5 @@
 extends HSlider
 
-
 # Called when the node enters the scene tree for the first time.
 func _input(event):
 	var div = self.value/100;
