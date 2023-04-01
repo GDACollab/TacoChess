@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://csu5xuvtn3q6y"]
+[gd_scene load_steps=9 format=3 uid="uid://csu5xuvtn3q6y"]
 
 [ext_resource type="Script" path="res://PieceSprites.gd" id="1_lugkn"]
 [ext_resource type="AudioStream" uid="uid://bk0u0s3bmhhso" path="res://sounds/sfx_ambience.ogg" id="2_k22u0"]
@@ -8,10 +8,22 @@
 [ext_resource type="AudioStream" uid="uid://t54hdclv8bij" path="res://sounds/sfx_check.ogg" id="5_h3o2f"]
 [ext_resource type="AudioStream" uid="uid://dm4bw0nwqr88p" path="res://sounds/sfx_pieceSelectMEOWV1.ogg" id="6_ykngv"]
 
+[sub_resource type="LabelSettings" id="LabelSettings_6ubq2"]
+font_size = 120
+
 [node name="game" type="Node2D"]
 
 [node name="PieceSprites" type="Node2D" parent="."]
 script = ExtResource("1_lugkn")
+
+[node name="Label" type="Label" parent="."]
+offset_left = 534.0
+offset_top = 248.0
+offset_right = 1321.0
+offset_bottom = 730.0
+label_settings = SubResource("LabelSettings_6ubq2")
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
 

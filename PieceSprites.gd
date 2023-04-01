@@ -140,6 +140,7 @@ func _input(event):
 				if mousePos.x < mvHH and mousePos.y < mvHV and mousePos.x > mvLH and mousePos.y > mvLV:
 					if move.type != Chessboard.Move.Type.PROTECT:
 						var gameState = move.execute.call();
+						clickedValidPiece = true;
 						if gameState.type == Chessboard.GameState.Type.PLAY:
 							match move.type:
 								Chessboard.Move.Type.MOVE:
@@ -152,11 +153,18 @@ func _input(event):
 									player.stream = piece_move;
 									player.pitch_scale = randf_range(0.8, 1.5);
 									player.play();
-							clickedValidPiece = true;
 						elif gameState.type == Chessboard.GameState.Type.CHECK:
 							check.play();
 						elif gameState.type == Chessboard.GameState.Type.CHECKMATE || gameState.type == Chessboard.GameState.Type.DRAW:
 							check.play();
+							var label = get_node("/root/game/Label");
+							if gameState.type == Chessboard.GameState.Type.CHECKMATE:
+								var side = "White";
+								if gameState.in_check.side == Chessboard.Piece.Side.WHITE:
+									side = "Black";
+								label.text = side + " wins.";
+							else:
+								label.text = "Draw";
 							await get_tree().create_timer(1.0).timeout;
 							Chessboard.ClearBoard();
 							get_tree().change_scene_to_file("res://menu.tscn");
