@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://uwsqe7lstaxj"
-path="res://.godot/imported/white_queen.png-11db84c2fc5c0b114920a7362e30ceae.ctex"
+uid="uid://0y4mkj01ur7p"
+path="res://.godot/imported/white_king.png-ebe02911a9d648f99f2c89dae480a447.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://ChessPieceSprites/white_queen.png"
-dest_files=["res://.godot/imported/white_queen.png-11db84c2fc5c0b114920a7362e30ceae.ctex"]
+source_file="res://TestChessPieceSprites/white_king.png"
+dest_files=["res://.godot/imported/white_king.png-ebe02911a9d648f99f2c89dae480a447.ctex"]
 
 [params]
 
