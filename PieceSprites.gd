@@ -26,6 +26,7 @@ var viewSize;
 
 var pieces := [];
 var highlight := [];
+var piece_in_check = null;
 var selectedPiece;
 
 class PieceSprite:
@@ -139,6 +140,7 @@ func _input(event):
 				var mvHV = mvLV + sWidth;
 				if mousePos.x < mvHH and mousePos.y < mvHV and mousePos.x > mvLH and mousePos.y > mvLV:
 					if move.type != Chessboard.Move.Type.PROTECT:
+						piece_in_check = null;
 						var gameState = move.execute.call();
 						clickedValidPiece = true;
 						if gameState.type == Chessboard.GameState.Type.PLAY:
@@ -155,6 +157,7 @@ func _input(event):
 									player.play();
 						elif gameState.type == Chessboard.GameState.Type.CHECK:
 							check.play();
+							piece_in_check = gameState.in_check;
 						elif gameState.type == Chessboard.GameState.Type.CHECKMATE || gameState.type == Chessboard.GameState.Type.DRAW:
 							check.play();
 							var label = get_node("/root/game/Label");
@@ -189,6 +192,9 @@ func _draw():
 		# draw_rect(selectedPiece.sprite.get_rect(), Color(Color.YELLOW, .5), true);
 		var selectedHighlight = Rect2(selectedPiece.sprite.position.x, selectedPiece.sprite.position.y, sWidth, sWidth);
 		draw_rect(selectedHighlight, Color(Color.BLUE, .5), true);
+	if piece_in_check != null:
+		var check_highlight = Rect2(piece_in_check.position.x * sWidth, piece_in_check.position.y * sWidth, sWidth, sWidth);
+		draw_rect(check_highlight, Color(Color.RED, .5), true);
 	for m in highlight:
 		var posX = (m.position.x* sWidth);
 		var posY = (m.position.y * sWidth);
