@@ -267,6 +267,11 @@ class King extends Chessboard.Piece:
 		self.move_state = MoveState.PLAY;
 		return self.basic_move(pos);
 	
+	func castle_move(pos: Vector2, rook_pos: Vector2, rook: Chessboard.Piece) -> Chessboard.GameState:
+		self.move_state = MoveState.PLAY;
+		Chessboard.MovePiece(rook.position, rook_pos);
+		return self.basic_move(pos);
+	
 	func get_king_move(offset : Vector2) -> Chessboard.Move:
 		var new_pos = self.position + offset;
 		if Logic.within_bounds(new_pos) && !self.get_in_check(new_pos):
@@ -293,7 +298,8 @@ class King extends Chessboard.Piece:
 			
 			var offset = self.position + 2 * unit;
 			var move = Chessboard.Move.new(Chessboard.Move.Type.CASTLE, offset);
-			move.execute = self.king_move.bind(offset);
+			var rook_pos = offset - unit;
+			move.execute = self.castle_move.bind(offset, rook_pos, rook);
 			return move;
 		return null;
 	
