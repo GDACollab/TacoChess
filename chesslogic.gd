@@ -1,6 +1,7 @@
 class_name Logic;
 
 static func update_game_board(moved_piece: Chessboard.Piece):
+	Chessboard.DebugPrintBoard();
 	# Moving one piece affects a whole bunch of what squares are or aren't threatened:
 	Chessboard.threatened_squares = [[], []];
 	
@@ -130,6 +131,12 @@ class Pawn extends Chessboard.Piece:
 			move_list.append(cap);
 		return move_list;
 	
+	func quick_promotion(pos: Vector2) -> Chessboard.GameState:
+		Chessboard.SetPiece(self.position);
+		var q = Queen.new(self.side, self.position);
+		Chessboard.SetPiece(self.position, q);
+		return q.basic_move(pos);
+	
 	func move_evaluation() -> Array[Chessboard.Move]:
 		var move_list : Array[Chessboard.Move] = [];
 		
@@ -138,10 +145,13 @@ class Pawn extends Chessboard.Piece:
 		if !(Chessboard.GetPiece(move_up)):
 			var type = Chessboard.Move.Type.MOVE;
 			# Are we near the edge of the board?
-			if int(move_up.y) % 7 == 0:
-				type = Chessboard.Move.Type.PROMOTION;
 			var m = Chessboard.Move.new(type,  move_up);
 			m.execute = self.pawn_move.bind(move_up);
+			if int(move_up.y) % 7 == 0:
+				type = Chessboard.Move.Type.PROMOTION;
+				# Cheap way to get around not having a promotion UI:
+				m.execute = self.quick_promotion.bind(move_up);
+				
 			move_list.append(m);
 			
 			# We can only move double if there's not a piece blocking the way, so nested into the above if:
@@ -267,9 +277,9 @@ class King extends Chessboard.Piece:
 		self.move_state = MoveState.PLAY;
 		return self.basic_move(pos);
 	
-	func castle_move(pos: Vector2, rook_pos: Vector2, rook: Chessboard.Piece) -> Chessboard.GameState:
+	func castle_move(pos: Vector2, rook_pos: Vector2, old_rook_pos: Vector2) -> Chessboard.GameState:
 		self.move_state = MoveState.PLAY;
-		Chessboard.MovePiece(rook.position, rook_pos);
+		Chessboard.MovePiece(old_rook_pos, rook_pos);
 		return self.basic_move(pos);
 	
 	func get_king_move(offset : Vector2) -> Chessboard.Move:
@@ -299,7 +309,7 @@ class King extends Chessboard.Piece:
 			var offset = self.position + 2 * unit;
 			var move = Chessboard.Move.new(Chessboard.Move.Type.CASTLE, offset);
 			var rook_pos = offset - unit;
-			move.execute = self.castle_move.bind(offset, rook_pos, rook);
+			move.execute = self.castle_move.bind(offset, rook_pos, rook_piece.position);
 			return move;
 		return null;
 	

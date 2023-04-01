@@ -108,8 +108,9 @@ func _input(event):
 				var mvLV = (move.position.y * sWidth) + bYOffset;
 				var mvHV = mvLV + sWidth;
 				if mousePos.x < mvHH and mousePos.y < mvHV and mousePos.x > mvLH and mousePos.y > mvLV:
-					var gameState = move.execute.call();
-					clickedValidPiece = true;
+					if move.type != Chessboard.Move.Type.PROTECT:
+						var gameState = move.execute.call();
+						clickedValidPiece = true;
 			selectedPiece = null;
 			highlight.clear();
 		queue_redraw();
