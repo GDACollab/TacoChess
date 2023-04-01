@@ -132,8 +132,10 @@ class Pawn extends Chessboard.Piece:
 		return move_list;
 	
 	func quick_promotion(pos: Vector2) -> Chessboard.GameState:
-		self.type = Chessboard.Piece.Type.QUEEN;
-		return self.basic_move(pos);
+		Chessboard.SetPiece(self.position);
+		var q = Queen.new(self.side, self.position);
+		Chessboard.SetPiece(self.position, q);
+		return q.basic_move(pos);
 	
 	func quick_en_passant(pos: Vector2) -> Chessboard.GameState:
 		var move_dir = get_move_dir();
