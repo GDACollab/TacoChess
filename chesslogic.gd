@@ -279,6 +279,8 @@ class King extends Chessboard.Piece:
 	
 	func castle_move(pos: Vector2, rook_pos: Vector2, old_rook_pos: Vector2) -> Chessboard.GameState:
 		self.move_state = MoveState.PLAY;
+		var rook = Chessboard.GetPiece(old_rook_pos);
+		rook.position = rook_pos;
 		Chessboard.MovePiece(old_rook_pos, rook_pos);
 		return self.basic_move(pos);
 	
