@@ -177,6 +177,18 @@ func _input(event):
 									player.stream = piece_move;
 									player.pitch_scale = randf_range(0.8, 1.5);
 									player.play();
+									var sprite = PieceSprite.new();
+									sprite.piece = Chessboard.GetPiece(move.position);
+									sprite.sprite = Sprite2D.new();
+									if sprite.piece.side == Chessboard.Piece.Side.BLACK:
+										sprite.sprite.texture = b_queen_sprite;
+									else:
+										sprite.sprite.texture = w_queen_sprite;
+									sprite.sprite.centered = false;
+									add_child(sprite.sprite, false, 1);
+									assignSpritePosition(sprite);
+									assignSpriteScale(sprite);
+									pieces.append(sprite);
 						elif gameState.type == Chessboard.GameState.Type.CHECK:
 							check.play();
 							piece_in_check = gameState.in_check;

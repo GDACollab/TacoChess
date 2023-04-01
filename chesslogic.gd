@@ -153,10 +153,6 @@ class Pawn extends Chessboard.Piece:
 			# Are we near the edge of the board?
 			var m = Chessboard.Move.new(type,  move_up);
 			m.execute = self.pawn_move.bind(move_up);
-			if int(move_up.y) % 7 == 0:
-				type = Chessboard.Move.Type.PROMOTION;
-				# Cheap way to get around not having a promotion UI:
-				m.execute = self.quick_promotion.bind(move_up);
 				
 			move_list.append(m);
 			
@@ -195,6 +191,11 @@ class Pawn extends Chessboard.Piece:
 			else:
 				cap.execute = self.pawn_move.bind(cap_pos);
 			move_list.append(cap);
+		for m in move_list:
+			if int(m.position.y) % 7 == 0:
+				m.type = Chessboard.Move.Type.PROMOTION;
+				# Cheap way to get around not having a promotion UI:
+				m.execute = self.quick_promotion.bind(m.position);
 		return move_list;
 
 class Rook extends Chessboard.Piece:
