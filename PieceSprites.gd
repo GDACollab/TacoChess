@@ -158,10 +158,35 @@ func _input(event):
 				var mvHV = mvLV + sWidth;
 				if mousePos.x < mvHH and mousePos.y < mvHV and mousePos.x > mvLH and mousePos.y > mvLV:
 					if move.type != Chessboard.Move.Type.PROTECT:
-						piece_in_check = null;
 						var gameState = move.execute.call();
+						if piece_in_check != null && move.position == piece_in_check.position:
+							check.play();
+							var label = get_node("/root/game/Label");
+							var side = "White";
+							if piece_in_check.side == Chessboard.Piece.Side.WHITE:
+								side = "Black";
+							label.text = side + " wins.";
+							queue_redraw();
+							await get_tree().create_timer(1.0).timeout;
+							Chessboard.ClearBoard();
+							get_tree().change_scene_to_file("res://menu.tscn");
+						
+						piece_in_check = null;
 						turn = (turn + 1) % 2;
 						clickedValidPiece = true;
+						if move.type == Chessboard.Move.Type.PROMOTION:
+							var sprite = PieceSprite.new();
+							sprite.piece = Chessboard.GetPiece(move.position);
+							sprite.sprite = Sprite2D.new();
+							if sprite.piece.side == Chessboard.Piece.Side.BLACK:
+								sprite.sprite.texture = b_queen_sprite;
+							else:
+								sprite.sprite.texture = w_queen_sprite;
+							sprite.sprite.centered = false;
+							add_child(sprite.sprite, false, 1);
+							assignSpritePosition(sprite);
+							assignSpriteScale(sprite);
+							pieces.append(sprite);
 						if gameState.type == Chessboard.GameState.Type.PLAY:
 							match move.type:
 								Chessboard.Move.Type.MOVE:
@@ -174,18 +199,6 @@ func _input(event):
 									player.stream = piece_move;
 									player.pitch_scale = randf_range(0.8, 1.5);
 									player.play();
-									var sprite = PieceSprite.new();
-									sprite.piece = Chessboard.GetPiece(move.position);
-									sprite.sprite = Sprite2D.new();
-									if sprite.piece.side == Chessboard.Piece.Side.BLACK:
-										sprite.sprite.texture = b_queen_sprite;
-									else:
-										sprite.sprite.texture = w_queen_sprite;
-									sprite.sprite.centered = false;
-									add_child(sprite.sprite, false, 1);
-									assignSpritePosition(sprite);
-									assignSpriteScale(sprite);
-									pieces.append(sprite);
 						elif gameState.type == Chessboard.GameState.Type.CHECK:
 							check.play();
 							piece_in_check = gameState.in_check;
