@@ -132,10 +132,14 @@ class Pawn extends Chessboard.Piece:
 		return move_list;
 	
 	func quick_promotion(pos: Vector2) -> Chessboard.GameState:
-		Chessboard.SetPiece(self.position);
-		var q = Queen.new(self.side, self.position);
-		Chessboard.SetPiece(self.position, q);
-		return q.basic_move(pos);
+		self.type = Chessboard.Piece.Type.QUEEN;
+		return self.basic_move(pos);
+	
+	func quick_en_passant(pos: Vector2) -> Chessboard.GameState:
+		var move_dir = get_move_dir();
+		Chessboard.SetPiece(pos - Vector2(0, move_dir));
+		self.pawn_move_state = MoveState.PLAY;
+		return self.basic_move(pos);
 	
 	func move_evaluation() -> Array[Chessboard.Move]:
 		var move_list : Array[Chessboard.Move] = [];
@@ -164,21 +168,30 @@ class Pawn extends Chessboard.Piece:
 		# Check captures:
 		var cap_pos = self.position + Vector2(1, move_dir);
 		var to_cap = Chessboard.GetPiece(cap_pos);
+		var is_en_passant = self.check_en_passant(cap_pos);
 		if to_cap != null or self.check_en_passant(cap_pos):
 			var type = Chessboard.Move.Type.CAPTURE;
 			if (to_cap != null && to_cap.side == self.side):
 				type = Chessboard.Move.Type.PROTECT;
 			var cap = Chessboard.Move.new(type, cap_pos);
-			cap.execute = self.pawn_move.bind(cap_pos);
+			if is_en_passant:
+				cap.execute = self.quick_en_passant.bind(cap_pos);
+			else:
+				cap.execute = self.pawn_move.bind(cap_pos);
 			move_list.append(cap);
 		cap_pos -= Vector2(2, 0);
 		to_cap = Chessboard.GetPiece(cap_pos);
-		if to_cap != null or self.check_en_passant(cap_pos):
+		is_en_passant = self.check_en_passant(cap_pos);
+		if to_cap != null or is_en_passant:
 			var type = Chessboard.Move.Type.CAPTURE;
+			
 			if (to_cap != null && to_cap.side == self.side):
 				type = Chessboard.Move.Type.PROTECT;
 			var cap = Chessboard.Move.new(type, cap_pos);
-			cap.execute = self.pawn_move.bind(cap_pos);
+			if is_en_passant:
+				cap.execute = self.quick_en_passant.bind(cap_pos);
+			else:
+				cap.execute = self.pawn_move.bind(cap_pos);
 			move_list.append(cap);
 		return move_list;
 
