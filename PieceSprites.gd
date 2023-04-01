@@ -52,23 +52,26 @@ func BuildBoard():
 			assignSpriteScale(pieceSprite);
 			pieceSprite.sprite.centered = false;
 			pieces.append(pieceSprite);
-			add_child(pieceSprite.sprite, false, 1);
 			if p.side == Chessboard.Piece.Side.WHITE:
 				match p.type:
 					Chessboard.Piece.Type.PAWN:
 						pieceSprite.sprite.texture = w_pawn_sprite;
+						add_child(pieceSprite.sprite, false, 1);
 					Chessboard.Piece.Type.ROOK:
 						pieceSprite.sprite.texture = w_rook_sprite;
+						add_child(pieceSprite.sprite, false, 1);
 					Chessboard.Piece.Type.KNIGHT:
 						pieceSprite.sprite.texture = w_knight_sprite;
+						add_child(pieceSprite.sprite, false, 1);
 					Chessboard.Piece.Type.BISHOP:
 						pieceSprite.sprite.texture = w_bishop_sprite;
+						add_child(pieceSprite.sprite, false, 1);
 					Chessboard.Piece.Type.QUEEN:
 						pieceSprite.sprite.texture = w_queen_sprite;
-						move_child(pieceSprite.sprite, 1);
+						add_child(pieceSprite.sprite, false, 2);
 					Chessboard.Piece.Type.KING:
 						pieceSprite.sprite.texture = w_king_sprite;
-						move_child(pieceSprite.sprite, 1);
+						add_child(pieceSprite.sprite, false, 2);
 					_:
 						printerr("Error drawing board: at least one chess piece does not have type");
 						break;
@@ -76,16 +79,22 @@ func BuildBoard():
 				match p.type:
 					Chessboard.Piece.Type.PAWN:
 						pieceSprite.sprite.texture = b_pawn_sprite;
+						add_child(pieceSprite.sprite, false, 1);
 					Chessboard.Piece.Type.ROOK:
 						pieceSprite.sprite.texture = b_rook_sprite;
+						add_child(pieceSprite.sprite, false, 1);
 					Chessboard.Piece.Type.KNIGHT:
 						pieceSprite.sprite.texture = b_knight_sprite;
+						add_child(pieceSprite.sprite, false, 1);
 					Chessboard.Piece.Type.BISHOP:
 						pieceSprite.sprite.texture = b_bishop_sprite;
+						add_child(pieceSprite.sprite, false, 1);
 					Chessboard.Piece.Type.QUEEN:
 						pieceSprite.sprite.texture = b_queen_sprite;
+						add_child(pieceSprite.sprite, false, 2);
 					Chessboard.Piece.Type.KING:
 						pieceSprite.sprite.texture = b_king_sprite;
+						add_child(pieceSprite.sprite, false, 2);
 					_:
 						printerr("Error drawing board: at least one chess piece does not have type");
 						break;
@@ -94,14 +103,16 @@ func _input(event):
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		var clickedValidPiece = false;
 		var mousePos = event.position;
-		if highlight.is_empty():
+		if selectedPiece == null:
 			for ps in pieces:
-				if ps.sprite.get_rect().has_point(to_local(event.position)):
-					pass
 				var psS = ps.sprite;
 				var psLH = psS.global_position.x;
 				var psHH = psLH + sWidth;
-				var psLV = psS.global_position.y;
+				var psLV
+				if ps.piece.type == Chessboard.Piece.Type.KING or ps.piece.type == Chessboard.Piece.Type.QUEEN:
+					psLV = psS.global_position.y + sWidth/2;
+				else:
+					psLV = psS.global_position.y;
 				var psHV = psLV + sWidth;
 				if mousePos.x < psHH and mousePos.y < psHV and mousePos.x > psLH and mousePos.y > psLV:
 					clickedValidPiece = true;
@@ -134,7 +145,11 @@ func _draw():
 			remove_child(p.sprite);
 			pieces.erase(p);
 	if selectedPiece != null:
-		var selectedHighlight = Rect2(selectedPiece.sprite.position.x, selectedPiece.sprite.position.y, sWidth, sWidth);
+		var selectedHighlight
+		if selectedPiece.piece.type == Chessboard.Piece.Type.KING or selectedPiece.piece.type == Chessboard.Piece.Type.QUEEN:
+			selectedHighlight = Rect2(selectedPiece.sprite.position.x, selectedPiece.sprite.position.y + sWidth/2, sWidth, sWidth);
+		else:
+			selectedHighlight = Rect2(selectedPiece.sprite.position.x, selectedPiece.sprite.position.y, sWidth, sWidth);
 		draw_rect(selectedHighlight, Color(Color.BLUE, .5), true);
 	for m in highlight:
 		var posX = (m.position.x* sWidth);
@@ -142,12 +157,12 @@ func _draw():
 		draw_rect(Rect2(posX, posY, sWidth, sWidth), Color(Color.WEB_PURPLE, .5), true);
 
 func ScaleScreen():
-	sWidth = min(viewSize.x / 8, viewSize.y / 8);
+	sWidth = min(viewSize.x / 8, viewSize.y / 9);
 	bXOffset = (viewSize.x - sWidth * 8) / 2;
-	bYOffset = (viewSize.y - sWidth * 8) / 2;
+	bYOffset = max((viewSize.y - sWidth * 8) / 2, sWidth/2);
 	spriteScale = sWidth / 1080.;
-	royalScaleX = sWidth / 720.;
-	royalScaleY = sWidth / 1368.;
+	royalScaleX = sWidth / 1080.;
+	royalScaleY = sWidth / 1640.;
 	position = Vector2(bXOffset, bYOffset);
 	boardRect = Rect2(0, 0, sWidth * 8, sWidth * 8);
 	for p in pieces:
@@ -155,15 +170,14 @@ func ScaleScreen():
 		assignSpriteScale(p);
 
 func assignSpritePosition(ps: PieceSprite):
-	#if ps.piece.type == Chessboard.Piece.Type.KING or ps.piece.type == Chessboard.Piece.Type.QUEEN:
-	#	ps.sprite.position = Vector2(ps.piece.position.x*sWidth, (7-ps.piece.position.y)*sWidth - sWidth/2);
-	#else:
-	ps.sprite.position = Vector2(ps.piece.position.x*sWidth, (7-ps.piece.position.y)*sWidth);
-	
+	if ps.piece.type == Chessboard.Piece.Type.KING or ps.piece.type == Chessboard.Piece.Type.QUEEN:
+		ps.sprite.position = Vector2(ps.piece.position.x*sWidth, (7-ps.piece.position.y)*sWidth - sWidth/2);
+	else:
+		ps.sprite.position = Vector2(ps.piece.position.x*sWidth, (7-ps.piece.position.y)*sWidth);
 	return;
 
 func assignSpriteScale(ps: PieceSprite):
-	#if ps.piece.type == Chessboard.Piece.Type.KING or ps.piece.type == Chessboard.Piece.Type.QUEEN:
-	#	ps.sprite.scale = Vector2(royalScaleX, royalScaleY *1.5);
-	#else:
-	ps.sprite.scale = Vector2(spriteScale, spriteScale);
+	if ps.piece.type == Chessboard.Piece.Type.KING or ps.piece.type == Chessboard.Piece.Type.QUEEN:
+		ps.sprite.scale = Vector2(royalScaleX, royalScaleY *1.5);
+	else:
+		ps.sprite.scale = Vector2(spriteScale, spriteScale);
