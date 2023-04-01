@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://dp2wotm1s1f0c"]
+[gd_scene load_steps=12 format=3 uid="uid://dp2wotm1s1f0c"]
 
 [ext_resource type="Texture2D" uid="uid://b1v5fgtgd7cjk" path="res://quit.png" id="1_0ff4i"]
 [ext_resource type="Texture2D" uid="uid://bvn5217ho2qjb" path="res://TitleSidebar.png" id="2_p7hhm"]
@@ -6,9 +6,15 @@
 [ext_resource type="Theme" uid="uid://c6pu8nobayuf6" path="res://menu.tres" id="2_xym2b"]
 [ext_resource type="Script" path="res://EndGameButton.gd" id="3_fnj68"]
 [ext_resource type="Texture2D" uid="uid://boyube8nkyh57" path="res://play.png" id="5_d1ikv"]
+[ext_resource type="Texture2D" uid="uid://dvik4hcinexgo" path="res://MENU_SCREENIE.png" id="7_ijtq5"]
+[ext_resource type="AudioStream" uid="uid://cwv22880543wh" path="res://sounds/tacochess-menu.wav" id="8_sl0js"]
+[ext_resource type="Script" path="res://volume.gd" id="9_3dw4s"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_cv7an"]
 font_size = 18
+
+[sub_resource type="LabelSettings" id="LabelSettings_j7man"]
+font_size = 44
 
 [node name="menu" type="Node2D"]
 
@@ -55,6 +61,33 @@ theme = ExtResource("2_xym2b")
 icon = ExtResource("1_0ff4i")
 flat = true
 script = ExtResource("3_fnj68")
+
+[node name="MenuScreenie" type="Sprite2D" parent="."]
+texture = ExtResource("7_ijtq5")
+centered = false
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("8_sl0js")
+autoplay = true
+
+[node name="HSlider" type="HSlider" parent="."]
+offset_left = 1508.0
+offset_top = 879.0
+offset_right = 1835.0
+offset_bottom = 967.0
+theme = ExtResource("2_xym2b")
+value = 50.0
+script = ExtResource("9_3dw4s")
+
+[node name="Label" type="Label" parent="HSlider"]
+layout_mode = 0
+offset_left = 34.0
+offset_top = -78.0
+offset_right = 302.0
+offset_bottom = 26.0
+text = "Volume"
+label_settings = SubResource("LabelSettings_j7man")
+horizontal_alignment = 1
 
 [connection signal="pressed" from="StartGameButton" to="StartGameButton" method="_on_PlayGameButton_pressed"]
 [connection signal="pressed" from="EndGameButton" to="EndGameButton" method="_endGameButton_pressed"]

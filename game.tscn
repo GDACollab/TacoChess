@@ -1,8 +1,71 @@
-[gd_scene load_steps=2 format=3 uid="uid://csu5xuvtn3q6y"]
+[gd_scene load_steps=12 format=3 uid="uid://csu5xuvtn3q6y"]
 
 [ext_resource type="Script" path="res://PieceSprites.gd" id="1_lugkn"]
+[ext_resource type="AudioStream" uid="uid://bk0u0s3bmhhso" path="res://sounds/sfx_ambience.ogg" id="2_k22u0"]
+[ext_resource type="AudioStream" uid="uid://cpgxpsb8c3433" path="res://sounds/tacochess-main.wav" id="3_vanr8"]
+[ext_resource type="AudioStream" uid="uid://bc0x2qmdhynal" path="res://sounds/sfx_pieceKill.ogg" id="4_ofwxn"]
+[ext_resource type="AudioStream" uid="uid://djhgwek7mcb6g" path="res://sounds/sfx_pieceSelectV1.ogg" id="5_185sa"]
+[ext_resource type="AudioStream" uid="uid://t54hdclv8bij" path="res://sounds/sfx_check.ogg" id="5_h3o2f"]
+[ext_resource type="AudioStream" uid="uid://dm4bw0nwqr88p" path="res://sounds/sfx_pieceSelectMEOWV1.ogg" id="6_ykngv"]
+[ext_resource type="Theme" uid="uid://c6pu8nobayuf6" path="res://menu.tres" id="8_37x4x"]
+[ext_resource type="Texture2D" uid="uid://b1v5fgtgd7cjk" path="res://quit.png" id="9_71kbb"]
+[ext_resource type="Script" path="res://BackButton.gd" id="10_sbv5i"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_6ubq2"]
+font_size = 120
 
 [node name="game" type="Node2D"]
 
 [node name="PieceSprites" type="Node2D" parent="."]
 script = ExtResource("1_lugkn")
+
+[node name="Label" type="Label" parent="."]
+offset_left = 534.0
+offset_top = 248.0
+offset_right = 1321.0
+offset_bottom = 730.0
+label_settings = SubResource("LabelSettings_6ubq2")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+
+[node name="Ambience" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("2_k22u0")
+volume_db = 10.0
+autoplay = true
+
+[node name="Music" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("3_vanr8")
+autoplay = true
+
+[node name="Kill" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_ofwxn")
+
+[node name="Check" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("5_h3o2f")
+
+[node name="Select1" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("5_185sa")
+
+[node name="Select2" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("6_ykngv")
+
+[node name="EndGameButton" type="Button" parent="."]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 380.0
+offset_bottom = 149.0
+grow_horizontal = 0
+grow_vertical = 0
+size_flags_horizontal = 4
+size_flags_vertical = 8
+theme = ExtResource("8_37x4x")
+icon = ExtResource("9_71kbb")
+flat = true
+script = ExtResource("10_sbv5i")
+
+[connection signal="pressed" from="EndGameButton" to="EndGameButton" method="_endGameButton_pressed"]
