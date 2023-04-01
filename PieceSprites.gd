@@ -29,7 +29,9 @@ class PieceSprite:
 	var piece = Chessboard.Piece;
 	var sprite;
 
+var player : AudioStreamPlayer2D;
 func _ready():
+	player = get_node("/root/game/AudioStreamPlayer2D");
 	viewSize = get_viewport().size;
 	ScaleScreen();
 	BuildBoard();
@@ -97,9 +99,16 @@ func _input(event):
 				if mousePos.x < psHH and mousePos.y < psHV and mousePos.x > psLH and mousePos.y > psLV:
 					clickedValidPiece = true;
 					selectedPiece = ps;
+					var to_load = ["res://sounds/sfx_pieceSelectMEOWV1.ogg", "res://sounds/sfx_pieceSelectV1.ogg"];
+					player.stream = load(to_load[randi_range(0, 1)]);
+					player.pitch_scale = randf_range(0.8, 1.5);
+					player.play();
 					highlight.append_array(ps.piece.get_possible_moves());
 			if not clickedValidPiece:
 				selectedPiece = null;
+				player.stream = load("res://sounds/sfx_pieceDeselectV1.ogg");
+				player.pitch_scale = randf_range(0.8, 1.5);
+				player.play();
 				highlight.clear();
 		else:
 			for move in highlight:
@@ -110,7 +119,29 @@ func _input(event):
 				if mousePos.x < mvHH and mousePos.y < mvHV and mousePos.x > mvLH and mousePos.y > mvLV:
 					if move.type != Chessboard.Move.Type.PROTECT:
 						var gameState = move.execute.call();
-						clickedValidPiece = true;
+						if gameState.type == Chessboard.GameState.Type.PLAY:
+							match move.type:
+								Chessboard.Move.Type.MOVE:
+									player.stream = load("res://sounds/sfx_pieceMove.ogg");
+								Chessboard.Move.Type.CAPTURE:
+									player.stream = load("res://sounds/sfx_pieceKill.ogg");
+								Chessboard.Move.Type.PROMOTION:
+									player.stream = load("res://sounds/sfx_pieceMove.ogg");
+							player.pitch_scale = randf_range(0.8, 1.5);
+							player.play();
+							clickedValidPiece = true;
+						elif gameState.type == Chessboard.GameState.Type.CHECK:
+							player.stream = load("res://sounds/sfx_check.ogg");
+							player.play();
+						elif gameState.type == Chessboard.GameState.Type.CHECKMATE || gameState.type == Chessboard.GameState.Type.DRAW:
+							player.stream = load("res://sounds/sfx_check.ogg");
+							player.play();
+							await get_tree().create_timer(3.0).timeout;
+							get_tree().change_scene_to_file("res://menu.tscn");
+				else:
+					player.stream = load("res://sounds/sfx_pieceDeselectV1.ogg");
+					player.pitch_scale = randf_range(0.8, 1.5);
+					player.play();
 			selectedPiece = null;
 			highlight.clear();
 		queue_redraw();
