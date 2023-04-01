@@ -14,6 +14,9 @@ const w_bishop_sprite = preload("res://ChessPieceSprites/white_bishop.png");
 const w_queen_sprite = preload("res://ChessPieceSprites/white_queen.png");
 const w_king_sprite = preload("res://ChessPieceSprites/white_king.png");
 
+const deselect = preload("res://sounds/sfx_pieceDeselectV1.ogg");
+const piece_move = preload("res://sounds/sfx_pieceMove.ogg");
+
 var bXOffset;
 var bYOffset;
 var sWidth;
@@ -30,9 +33,21 @@ class PieceSprite:
 	var sprite;
 
 var player : AudioStreamPlayer2D;
+var check : AudioStreamPlayer2D;
+var piece_kill : AudioStreamPlayer2D;
+var select_1 : AudioStreamPlayer2D;
+var select_2 : AudioStreamPlayer2D;
 func _ready():
 	player = get_node("/root/game/AudioStreamPlayer2D");
+	check = get_node("/root/game/Check");
+	piece_kill = get_node("/root/game/Kill");
+	select_1 = get_node("/root/game/Select1");
+	select_2 = get_node("/root/game/Select2");
+	check.volume_db = Chessboard.volume;
+	piece_kill.volume_db = Chessboard.volume;
 	player.volume_db = Chessboard.volume;
+	select_1.volume_db = Chessboard.volume;
+	select_2.volume_db = Chessboard.volume;
 	get_node("/root/game/Ambience").volume_db = 10 + Chessboard.volume;
 	get_node("/root/game/Music").volume_db = Chessboard.volume - 2;
 	viewSize = get_viewport().size;
@@ -102,14 +117,17 @@ func _input(event):
 				if mousePos.x < psHH and mousePos.y < psHV and mousePos.x > psLH and mousePos.y > psLV:
 					clickedValidPiece = true;
 					selectedPiece = ps;
-					var to_load = ["res://sounds/sfx_pieceSelectMEOWV1.ogg", "res://sounds/sfx_pieceSelectV1.ogg"];
-					player.stream = load(to_load[randi_range(0, 1)]);
-					player.pitch_scale = randf_range(0.8, 1.5);
-					player.play();
-					highlight.append_array(ps.piece.get_possible_moves());
+					var to_load = [select_1, select_2];
+					var select = to_load[randi_range(0, 1)];
+					select.pitch_scale = randf_range(0.8, 1.5);
+					select.play();
+					var mvs = ps.piece.get_possible_moves();
+					for move in mvs:
+						if move.type != Chessboard.Move.Type.PROTECT:
+							highlight.append(move);
 			if not clickedValidPiece:
 				selectedPiece = null;
-				player.stream = load("res://sounds/sfx_pieceDeselectV1.ogg");
+				player.stream = deselect;
 				player.pitch_scale = randf_range(0.8, 1.5);
 				player.play();
 				highlight.clear();
@@ -125,24 +143,25 @@ func _input(event):
 						if gameState.type == Chessboard.GameState.Type.PLAY:
 							match move.type:
 								Chessboard.Move.Type.MOVE:
-									player.stream = load("res://sounds/sfx_pieceMove.ogg");
+									player.stream = piece_move;
+									player.pitch_scale = randf_range(0.8, 1.5);
+									player.play();
 								Chessboard.Move.Type.CAPTURE:
-									player.stream = load("res://sounds/sfx_pieceKill.ogg");
+									piece_kill.play();
 								Chessboard.Move.Type.PROMOTION:
-									player.stream = load("res://sounds/sfx_pieceMove.ogg");
-							player.pitch_scale = randf_range(0.8, 1.5);
-							player.play();
+									player.stream = piece_move;
+									player.pitch_scale = randf_range(0.8, 1.5);
+									player.play();
 							clickedValidPiece = true;
 						elif gameState.type == Chessboard.GameState.Type.CHECK:
-							player.stream = load("res://sounds/sfx_check.ogg");
-							player.play();
+							check.play();
 						elif gameState.type == Chessboard.GameState.Type.CHECKMATE || gameState.type == Chessboard.GameState.Type.DRAW:
-							player.stream = load("res://sounds/sfx_check.ogg");
-							player.play();
-							await get_tree().create_timer(3.0).timeout;
+							check.play();
+							await get_tree().create_timer(1.0).timeout;
+							Chessboard.ClearBoard();
 							get_tree().change_scene_to_file("res://menu.tscn");
 				else:
-					player.stream = load("res://sounds/sfx_pieceDeselectV1.ogg");
+					player.stream = deselect;
 					player.pitch_scale = randf_range(0.8, 1.5);
 					player.play();
 			selectedPiece = null;
