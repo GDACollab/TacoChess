@@ -32,6 +32,9 @@ class PieceSprite:
 var player : AudioStreamPlayer2D;
 func _ready():
 	player = get_node("/root/game/AudioStreamPlayer2D");
+	player.volume_db = Chessboard.volume;
+	get_node("/root/game/Ambience").volume_db = 10 + Chessboard.volume;
+	get_node("/root/game/Music").volume_db = Chessboard.volume;
 	viewSize = get_viewport().size;
 	ScaleScreen();
 	BuildBoard();

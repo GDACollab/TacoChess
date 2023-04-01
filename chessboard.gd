@@ -3,6 +3,8 @@ extends Node
 # Which has a lot more information that I did not use when making this. It's a lot more interesting and focused on more efficient programming.
 # Bitboard representation seems really cool.
 
+var volume = 0.0;
+
 # Because class_name doesn't work for singletons:
 var logic = preload("res://chesslogic.gd");
 # Two arrays, one represents the squares threatened by side 0 and 1 respectively (WHITE and BLACK).

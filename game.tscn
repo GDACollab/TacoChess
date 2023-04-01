@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://csu5xuvtn3q6y"]
+[gd_scene load_steps=4 format=3 uid="uid://csu5xuvtn3q6y"]
 
 [ext_resource type="Script" path="res://PieceSprites.gd" id="1_lugkn"]
 [ext_resource type="AudioStream" uid="uid://bk0u0s3bmhhso" path="res://sounds/sfx_ambience.ogg" id="2_k22u0"]
+[ext_resource type="AudioStream" uid="uid://cpgxpsb8c3433" path="res://sounds/tacochess-main.wav" id="3_vanr8"]
 
 [node name="game" type="Node2D"]
 
@@ -12,4 +13,9 @@ script = ExtResource("1_lugkn")
 
 [node name="Ambience" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("2_k22u0")
+volume_db = 10.0
+autoplay = true
+
+[node name="Music" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("3_vanr8")
 autoplay = true
